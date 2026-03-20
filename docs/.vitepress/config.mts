@@ -4,6 +4,7 @@ import { defineConfig } from 'vitepress'
 import markdownItKatex from 'markdown-it-katex'
 
 export default defineConfig({
+  base: '/ycup-archive/',
   title: "ycup Archive",
   description: "ycup 数学竞赛数字化存档站",
   
@@ -58,7 +59,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/your-username/ycup' }
+      { icon: 'github', link: 'https://github.com/Hughpig/ycup' }
     ],
 
     footer: {
