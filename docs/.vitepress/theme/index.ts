@@ -2,12 +2,13 @@
 import DefaultTheme from 'vitepress/theme'
 import type { EnhanceAppContext } from 'vitepress'
 import PdfBox from './components/PdfBox.vue'
-// import Solve from './components/Solve.vue' // 以后加答题组件也在这注册
+import Solve from './components/Solve.vue'
 
 export default {
   extends: DefaultTheme, // 继承默认主题
   enhanceApp({ app }: EnhanceAppContext) {
     // 全局注册组件，这样你在任何 .md 里都能直接用 <PdfBox />
     app.component('PdfBox', PdfBox)
+    app.component('Solve', Solve)
   }
 }

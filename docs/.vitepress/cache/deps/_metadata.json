@@ -1,44 +1,50 @@
 {
-  "hash": "34e1a486",
+  "hash": "0452bbc8",
   "configHash": "c5482f0f",
-  "lockfileHash": "4ee71cd8",
-  "browserHash": "0bec0587",
+  "lockfileHash": "00d167ca",
+  "browserHash": "c7a09e51",
   "optimized": {
     "vue": {
       "src": "../../../../node_modules/.pnpm/vue@3.5.30/node_modules/vue/dist/vue.runtime.esm-bundler.js",
       "file": "vue.js",
-      "fileHash": "3b6c29e8",
+      "fileHash": "f89e21f5",
       "needsInterop": false
     },
     "vitepress > @vue/devtools-api": {
       "src": "../../../../node_modules/.pnpm/@vue+devtools-api@7.7.9/node_modules/@vue/devtools-api/dist/index.js",
       "file": "vitepress___@vue_devtools-api.js",
-      "fileHash": "6cf14fc0",
+      "fileHash": "2ee7f691",
       "needsInterop": false
     },
     "vitepress > @vueuse/core": {
       "src": "../../../../node_modules/.pnpm/@vueuse+core@12.8.2/node_modules/@vueuse/core/index.mjs",
       "file": "vitepress___@vueuse_core.js",
-      "fileHash": "1be37241",
+      "fileHash": "3580ca1a",
       "needsInterop": false
     },
     "vitepress > @vueuse/integrations/useFocusTrap": {
       "src": "../../../../node_modules/.pnpm/@vueuse+integrations@12.8.2_focus-trap@7.8.0/node_modules/@vueuse/integrations/useFocusTrap.mjs",
       "file": "vitepress___@vueuse_integrations_useFocusTrap.js",
-      "fileHash": "5126029d",
+      "fileHash": "fb9706bb",
       "needsInterop": false
     },
     "vitepress > mark.js/src/vanilla.js": {
       "src": "../../../../node_modules/.pnpm/mark.js@8.11.1/node_modules/mark.js/src/vanilla.js",
       "file": "vitepress___mark__js_src_vanilla__js.js",
-      "fileHash": "c3c6c94c",
+      "fileHash": "a88d3206",
       "needsInterop": false
     },
     "vitepress > minisearch": {
       "src": "../../../../node_modules/.pnpm/minisearch@7.2.0/node_modules/minisearch/dist/es/index.js",
       "file": "vitepress___minisearch.js",
-      "fileHash": "0dafba02",
+      "fileHash": "9a49fc46",
       "needsInterop": false
+    },
+    "crypto-js": {
+      "src": "../../../../node_modules/.pnpm/crypto-js@4.2.0/node_modules/crypto-js/index.js",
+      "file": "crypto-js.js",
+      "fileHash": "0ecc593d",
+      "needsInterop": true
     }
   },
   "chunks": {
@@ -47,6 +53,9 @@
     },
     "chunk-N6POSVQF": {
       "file": "chunk-N6POSVQF.js"
+    },
+    "chunk-VUNV25KB": {
+      "file": "chunk-VUNV25KB.js"
     }
   }
 }
