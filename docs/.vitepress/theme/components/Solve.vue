@@ -1,74 +1,168 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-// 注意：需要先运行 pnpm add crypto-js
 import CryptoJS from 'crypto-js'
 
 interface Props {
-  hash: string   // 答案的 MD5 哈希值
-  pid: string    // 题目唯一 ID，如 26-W01-A
+  hash: string   // 正确答案的 MD5 值
+  pid: string    // 题目唯一 ID，例如 '26-W01-A'
 }
 
 const props = defineProps<Props>()
+
 const input = ref('')
 const status = ref<'none' | 'ac' | 'wa'>('none')
+const isPassed = ref(false) // 记录该题是否曾被 AC 过
+const isSubmitting = ref(false) // 防止连点
 
-// 初始化时检查本地存储，看看这题是不是已经做过了
+// 初始化：从本地存储读取该题的状态
 onMounted(() => {
-  const saved = localStorage.getItem(`ycup_solved_${props.pid}`)
-  if (saved) status.value = 'ac'
+  const savedStatus = localStorage.getItem(`ycup_solved_${props.pid}`)
+  if (savedStatus === 'true') {
+    isPassed.value = true
+  }
 })
 
 const submit = () => {
-  if (status.value === 'ac') return
+  if (!input.value.trim() || isSubmitting.value) return
   
-  // 计算用户输入的 MD5
-  const userHash = CryptoJS.MD5(input.value.trim()).toString()
+  isSubmitting.value = true
   
-  if (userHash === props.hash) {
+  // 计算用户输入的 MD5 (去除空格并转小写处理，增加容错)
+  const userHash = CryptoJS.MD5(input.value.trim().toLowerCase()).toString()
+  
+  if (userHash === props.hash.toLowerCase()) {
     status.value = 'ac'
+    isPassed.value = true
     localStorage.setItem(`ycup_solved_${props.pid}`, 'true')
   } else {
     status.value = 'wa'
-    // 抖动效果或提示可以在这里加
   }
+
+  // 1秒后解除点击锁定，允许重复尝试
+  setTimeout(() => {
+    isSubmitting.value = false
+  }, 1000)
 }
 </script>
 
 <template>
-  <div class="solve-box" :class="status">
-    <div class="header">
-      <span class="title">🏁 答案提交</span>
-      <span v-if="status === 'ac'" class="badge">Accepted</span>
+  <div class="solve-card" :class="{ 'passed': isPassed }">
+    <div class="card-header">
+      <span class="pid-tag"># {{ pid }}</span>
+      <span v-if="isPassed" class="status-badge ac">ACCEPTED</span>
+      <span v-else class="status-badge todo">UNSOLVED</span>
     </div>
-    
-    <div class="input-area">
+
+    <div class="input-wrapper">
       <input 
         v-model="input" 
-        :disabled="status === 'ac'"
         @keyup.enter="submit"
-        placeholder="请输入数值或简短字符串答案..."
+        placeholder="输入数值或简短答案..."
+        spellcheck="false"
       />
-      <button @click="submit" :disabled="status === 'ac'">
-        {{ status === 'ac' ? '已通过' : '提交' }}
+      <button @click="submit" :disabled="isSubmitting">
+        {{ isSubmitting ? '检查中...' : '提交' }}
       </button>
     </div>
-    
-    <p v-if="status === 'wa'" class="error-msg">❌ 答案错误，再检查一下过程？</p>
-    <p v-if="status === 'ac'" class="success-msg">🎉 恭喜！本题已成功解决。</p>
+
+    <transition name="slide-fade">
+      <div v-if="status === 'ac'" class="feedback-msg ac-msg">
+        ✨ 恭喜！答案正确。
+      </div>
+      <div v-else-if="status === 'wa'" class="feedback-msg wa-msg">
+        ❌ 答案错误，再检查一下过程？
+      </div>
+    </transition>
   </div>
 </template>
 
 <style scoped>
-.solve-box { margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--vp-c-divider); border-radius: 8px; background-color: var(--vp-c-bg-soft); transition: all 0.3s; }
-.solve-box.ac { border-color: #42b883; background-color: rgba(66, 184, 131, 0.05); }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.title { font-weight: bold; font-size: 0.9rem; }
-.badge { font-size: 0.75rem; background: #42b883; color: white; padding: 2px 8px; border-radius: 10px; }
-.input-area { display: flex; gap: 8px; }
-input { flex: 1; padding: 8px 12px; border: 1px solid var(--vp-c-divider); border-radius: 6px; background: var(--vp-c-bg); color: var(--vp-c-text-1); outline: none; }
-input:focus { border-color: var(--vp-c-brand); }
-button { padding: 8px 16px; background: var(--vp-c-brand); color: white; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; }
-button:disabled { background: var(--vp-c-divider); cursor: not-allowed; }
-.error-msg { color: #f66; font-size: 0.85rem; margin-top: 8px; font-weight: bold; }
-.success-msg { color: #42b883; font-size: 0.85rem; margin-top: 8px; font-weight: bold; }
+/* 容器样式 */
+.solve-card {
+  margin: 1.5rem 0;
+  padding: 1.2rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background-color: var(--vp-c-bg-soft);
+  transition: all 0.3s ease;
+}
+
+/* 已通过时的边框和背景微调 */
+.solve-card.passed {
+  border-color: rgba(66, 184, 131, 0.5);
+  background-color: rgba(66, 184, 131, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.pid-tag {
+  font-family: var(--vp-font-family-mono);
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: var(--vp-c-text-2);
+}
+
+.status-badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.ac { background: #42b883; color: white; }
+.status-badge.todo { background: var(--vp-c-divider); color: var(--vp-c-text-2); }
+
+/* 输入区域 */
+.input-wrapper {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  border-color: var(--vp-c-brand);
+}
+
+button {
+  padding: 0 20px;
+  background: var(--vp-c-brand);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+button:active { transform: scale(0.96); }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* 反馈信息 */
+.feedback-msg {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.ac-msg { color: #42b883; }
+.wa-msg { color: #f66; }
+
+.slide-fade-enter-active { transition: all 0.3s ease-out; }
+.slide-fade-enter-from { opacity: 0; transform: translateY(-10px); }
 </style>

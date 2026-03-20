@@ -13,7 +13,7 @@
     
     <div class="pdf-footer">
       <a :href="finalUrl" download class="download-btn">
-        📥 下载本周试卷 (PDF)
+        📥 下载 PDF
       </a>
     </div>
   </div>
