@@ -1,3 +1,1 @@
-$$\sin x$$
-
-$1$
+<PdfBox url="/problems/2026/w01/solution.pdf" />

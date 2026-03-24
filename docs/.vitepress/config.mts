@@ -40,7 +40,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             {
-              text: 'Round 1 (W01) 3.24',
+              text: 'Stage 1 (YiChuan) 3.24',
               collapsed: true,
               items: [
                 { text: '题目预览', link: '/problems/2026/w01/' },
