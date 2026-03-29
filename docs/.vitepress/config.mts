@@ -59,7 +59,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/Hughpig/ycup' }
+      { icon: 'github', link: 'https://github.com/Hughpig/ycup-archive/' }
     ],
 
     footer: {
