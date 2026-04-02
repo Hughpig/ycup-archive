@@ -55,7 +55,29 @@ export default defineConfig({
 
     // 搜索功能
     search: {
-      provider: 'local'
+      provider: 'local',
+      options: {
+       // 关键：开启多语言/中文支持
+       locales: {
+          root: {
+            translations: {
+             button: { buttonText: '搜索内容', buttonAriaLabel: '搜索内容' },
+              modal: {
+                noResultsText: '无法找到相关结果',
+                resetButtonTitle: '清除查询条件',
+                footer: { selectText: '选择', navigateText: '切换', closeText: '关闭' }
+              }
+            }
+          }
+        },
+        // 强制分词器支持中文 (通过 MiniSearch 配置)
+        miniSearch: {
+          options: {
+            /* 如果需要极致分词，可以引入外部插件，
+             但通常开启 locales 后 VitePress 会自动处理基础中文 */
+          }
+        }
+      }
     },
 
     socialLinks: [
