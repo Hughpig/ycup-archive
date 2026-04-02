@@ -28,8 +28,7 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       { text: '指南', link: '/guide' },
-      { text: '2026 赛季', link: '/problems/2026/w01/' },
-      { text: '关于', link: '/about' }
+      { text: '2026 赛季', link: '/problems/2026/w01/' }
     ],
 
     // 侧边栏：支持多级折叠
