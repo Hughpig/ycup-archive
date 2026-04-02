@@ -1,5 +1,6 @@
 // .vitepress/theme/index.ts
 import DefaultTheme from 'vitepress/theme'
+import './custom.css'
 import type { EnhanceAppContext } from 'vitepress'
 import PdfBox from './components/PdfBox.vue'
 import Solve from './components/Solve.vue'

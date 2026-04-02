@@ -1,0 +1,14 @@
+/* 强制首页标题不换行 */
+.VPHero .name, 
+.VPHero .text {
+  white-space: nowrap !important;
+}
+
+/* 适配移动端：防止文字太长超出屏幕 */
+@media (max-width: 768px) {
+  .VPHero .name,
+  .VPHero .text {
+    font-size: 32px !important; /* 手机端调小字号 */
+    white-space: normal !important; /* 手机端如果实在太长，允许换行以防溢出 */
+  }
+}
