@@ -47,6 +47,15 @@ export default defineConfig({
                 { text: '官方题解', link: '/problems/2026/w01/solution' },
                 { text: '赛后战报', link: '/problems/2026/w01/report' }
               ]
+            },
+            {
+              text: 'Stage 2 (NanJing) 4.1',
+              collapsed: true,
+              items: [
+                { text: '题目预览', link: '/problems/2026/w02/' },
+                { text: '官方题解', link: '/problems/2026/w02/solution' },
+                { text: '赛后战报', link: '/problems/2026/w02/report' }
+              ]
             }
           ]
         }
