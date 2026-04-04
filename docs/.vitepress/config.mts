@@ -49,7 +49,7 @@ export default defineConfig({
               ]
             },
             {
-              text: 'Stage 2 (NanJing) 4.1',
+              text: 'Stage 2 (NanJing) 3.31',
               collapsed: true,
               items: [
                 { text: '题目预览', link: '/problems/2026/w02/' },
