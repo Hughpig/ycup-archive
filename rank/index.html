@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>YCup 实时榜单</title>
+    <style>
+        :root { --ac-color: #c8e6c9; --wa-color: #ffcdd2; --pending-color: #fff9c4; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #f0f2f5; margin: 20px; }
+        .controls { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+        h1 { margin: 0 20px 0 0; font-size: 1.5em; color: #333; }
+        .btn { padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-undo { background: #6c757d; color: white; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .input-group { display: flex; align-items: center; gap: 5px; font-size: 0.9em; }
+        input[type="number"], input[type="datetime-local"] { padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        .lock-status { padding: 8px 12px; border-radius: 4px; background: #eee; display: flex; align-items: center; gap: 8px; font-weight: bold; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #e0e0e0; padding: 12px 8px; text-align: center; }
+        th { background: #f8f9fa; font-size: 0.9em; color: #555; }
+        
+        .team-name { text-align: left; min-width: 150px; font-weight: 600; cursor: pointer; }
+        .rank-cell { width: 40px; background: #f8f9fa; font-weight: bold; }
+        
+        .problem-cell { cursor: pointer; min-width: 60px; transition: 0.1s; position: relative; }
+        .locked .problem-cell { cursor: default; }
+        .status-solved { background: var(--ac-color); color: #2e7d32; }
+        .status-failed { background: var(--wa-color); color: #c62828; }
+        
+        .wa-count { font-size: 1em; font-weight: bold; display: block; }
+        .time-label { font-size: 0.75em; color: #666; }
+
+        #actionModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 100; min-width: 280px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
+        .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    </style>
+</head>
+<body class="locked">
+
+    <div class="controls">
+        <h1>YCup 实时榜单</h1>
+        <div class="lock-status">
+            <input type="checkbox" id="editToggle" onchange="toggleLock()">
+            <label for="editToggle">开启编辑模式</label>
+        </div>
+        <button class="btn btn-undo" onclick="undo()" id="undoBtn" disabled title="Ctrl+Z">撤销</button>
+        
+        <div class="input-group">
+            <label>开始时间:</label>
+            <input type="datetime-local" id="startTime">
+        </div>
+        <div class="input-group">
+            <label>罚时/WA:</label>
+            <input type="number" id="penaltyPerWA" value="20" style="width: 45px;">
+        </div>
+        <div class="input-group">
+            <label>题目数:</label>
+            <input type="number" id="probCountInput" value="10" min="1" max="26" style="width: 45px;">
+            <button class="btn" style="padding: 4px 8px; background: #666; color: white;" onclick="updateProbCount()">更新</button>
+        </div>
+
+        <button class="btn btn-primary" onclick="addTeam()">添加队伍</button>
+        <button class="btn btn-danger" onclick="clearData()" style="margin-left: auto;">重置全榜</button>
+    </div>
+
+    <table id="rankTable">
+        <thead><tr id="headerRow"></tr></thead>
+        <tbody id="rankBody"></tbody>
+    </table>
+
+    <div class="modal-overlay" id="overlay" onclick="closeModal()"></div>
+    <div id="actionModal">
+        <h3 id="modalTitle" style="margin:0 0 10px 0">修改状态</h3>
+        <p id="modalInfo" style="color:#666; font-size:0.9em"></p>
+        <div class="modal-btns">
+            <button class="btn" style="background:#28a745; color:white" onclick="doAction('AC')">标记 AC</button>
+            <button class="btn" style="background:#dc3545; color:white" onclick="doAction('WA')">增加 WA (+1)</button>
+            <button class="btn" style="background:#6c757d; color:white" onclick="doAction('RESET')">重置题目</button>
+            <button class="btn" style="background:#eee;" onclick="closeModal()">取消操作</button>
+        </div>
+    </div>
+
+<script>
+    let state = {
+        teams: [],
+        probCount: 10,
+        history: []
+    };
+
+    let currentOp = { teamIdx: -1, probIdx: -1 };
+
+    function saveState() {
+        localStorage.setItem('ycup_board_data', JSON.stringify({
+            teams: state.teams,
+            probCount: state.probCount,
+            startTime: document.getElementById('startTime').value,
+            penalty: document.getElementById('penaltyPerWA').value
+        }));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem('ycup_board_data');
+        if (saved) {
+            const data = JSON.parse(saved);
+            state.teams = data.teams || [];
+            state.probCount = data.probCount || 10;
+            document.getElementById('probCountInput').value = state.probCount;
+            document.getElementById('startTime').value = data.startTime || "";
+            document.getElementById('penaltyPerWA').value = data.penalty || 20;
+        }
+        render();
+    }
+
+    function pushHistory() {
+        state.history.push(JSON.stringify({teams: state.teams, probCount: state.probCount}));
+        if (state.history.length > 30) state.history.shift();
+        document.getElementById('undoBtn').disabled = false;
+    }
+
+    function undo() {
+        if (state.history.length > 0) {
+            const last = JSON.parse(state.history.pop());
+            state.teams = last.teams;
+            state.probCount = last.probCount;
+            document.getElementById('probCountInput').value = state.probCount;
+            if (state.history.length === 0) document.getElementById('undoBtn').disabled = true;
+            render();
+            saveState();
+        }
+    }
+
+    function updateProbCount() {
+        if (!document.getElementById('editToggle').checked) {
+            alert("请先开启编辑模式再修改题目数量");
+            return;
+        }
+        const newCount = parseInt(document.getElementById('probCountInput').value);
+        if (newCount < 1 || newCount > 26) return;
+        
+        pushHistory();
+        state.teams.forEach(team => {
+            if (newCount > state.probCount) {
+                for (let i = state.probCount; i < newCount; i++) {
+                    team.probs.push({solved: false, wa: 0, time: 0});
+                }
+            } else {
+                team.probs = team.probs.slice(0, newCount);
+            }
+        });
+        state.probCount = newCount;
+        render();
+        saveState();
+    }
+
+    function toggleLock() {
+        const isLocked = !document.getElementById('editToggle').checked;
+        document.body.className = isLocked ? 'locked' : '';
+    }
+
+    function openModal(tIdx, pIdx) {
+        if (!document.getElementById('editToggle').checked) return;
+        currentOp = { teamIdx: tIdx, probIdx: pIdx };
+        const team = state.teams[tIdx];
+        const probChar = String.fromCharCode(65 + pIdx);
+        document.getElementById('modalTitle').innerText = `${team.name} - 题目 ${probChar}`;
+        document.getElementById('modalInfo').innerText = `状态: ${team.probs[pIdx].solved ? 'AC' : '未过'}, WA次数: ${team.probs[pIdx].wa}`;
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('actionModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('actionModal').style.display = 'none';
+    }
+
+    function doAction(type) {
+        pushHistory();
+        const prob = state.teams[currentOp.teamIdx].probs[currentOp.probIdx];
+        const startTime = new Date(document.getElementById('startTime').value).getTime();
+        const now = new Date().getTime();
+
+        if (type === 'AC') {
+            prob.solved = true;
+            if (startTime && now > startTime) {
+                prob.time = Math.floor((now - startTime) / 60000);
+            } else if (!prob.time) {
+                prob.time = parseInt(prompt("手动输入 AC 分钟数:", "0") || 0);
+            }
+        } else if (type === 'WA') {
+            prob.wa++;
+        } else if (type === 'RESET') {
+            prob.solved = false;
+            prob.wa = 0;
+            prob.time = 0;
+        }
+        
+        closeModal();
+        render();
+        saveState();
+    }
+
+    function render() {
+        const header = document.getElementById('headerRow');
+        header.innerHTML = '<th class="rank-cell">#</th><th class="team-name">Team Name</th>';
+        for(let i=0; i<state.probCount; i++) header.innerHTML += `<th>${String.fromCharCode(65+i)}</th>`;
+        header.innerHTML += '<th>Solved</th><th>Penalty</th>';
+
+        const penaltyConst = parseInt(document.getElementById('penaltyPerWA').value) || 20;
+        state.teams.forEach(t => {
+            t.solvedCount = t.probs.filter(p => p.solved).length;
+            t.totalPenalty = t.probs.reduce((sum, p) => p.solved ? sum + p.time + (p.wa * penaltyConst) : sum, 0);
+        });
+
+        // 排序：题数降序 -> 罚时升序 -> 队名升序
+        state.teams.sort((a, b) => (b.solvedCount - a.solvedCount) || (a.totalPenalty - b.totalPenalty) || a.name.localeCompare(b.name));
+
+        const body = document.getElementById('rankBody');
+        body.innerHTML = '';
+        state.teams.forEach((team, tIdx) => {
+            let row = `<tr><td class="rank-cell">${tIdx+1}</td><td class="team-name" onclick="editName(${tIdx})">${team.name}</td>`;
+            team.probs.forEach((p, pIdx) => {
+                let cls = p.solved ? 'status-solved' : (p.wa > 0 ? 'status-failed' : '');
+                let content = p.solved ? `<span class="wa-count">+${p.wa || ''}</span><span class="time-label">${p.time}</span>` 
+                                       : (p.wa > 0 ? `<span class="wa-count">-${p.wa}</span>` : '');
+                row += `<td class="problem-cell ${cls}" onclick="openModal(${tIdx}, ${pIdx})">${content}</td>`;
+            });
+            row += `<td style="font-weight:bold">${team.solvedCount}</td><td style="color:#666">${team.totalPenalty}</td></tr>`;
+            body.innerHTML += row;
+        });
+    }
+
+    function addTeam() {
+        const name = prompt("请输入队伍名称:");
+        if (!name) return;
+        pushHistory();
+        state.teams.push({
+            name,
+            probs: Array.from({length: state.probCount}, () => ({solved: false, wa: 0, time: 0}))
+        });
+        render();
+        saveState();
+    }
+
+    function editName(idx) {
+        if (!document.getElementById('editToggle').checked) return;
+        const n = prompt("修改队名:", state.teams[idx].name);
+        if (n) { pushHistory(); state.teams[idx].name = n; render(); saveState(); }
+    }
+
+    function clearData() {
+        if (confirm("！！！警告！！！\n确定要清空所有数据吗？")) {
+            localStorage.removeItem('ycup_board_data');
+            state.teams = [];
+            state.history = [];
+            render();
+        }
+    }
+
+    window.onkeydown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key === 'z') undo(); };
+
+    window.onload = () => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('startTime').value = now.toISOString().slice(0,16);
+        loadState();
+    };
+</script>
+</body>
+</html>
