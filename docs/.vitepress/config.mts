@@ -57,6 +57,15 @@ export default defineConfig({
                 { text: '官方题解', link: '/problems/2026/w02/solution' },
                 { text: '赛后战报', link: '/problems/2026/w02/report' }
               ]
+            },
+            {
+              text: 'Stage 3 (ヨスガノソラ) 3.31',
+              collapsed: true,
+              items: [
+                { text: '题目预览', link: '/problems/2026/w03/' },
+                { text: '官方题解', link: '/problems/2026/w03/solution' },
+                { text: '赛后战报', link: '/problems/2026/w03/report' }
+              ]
             }
           ]
         }
