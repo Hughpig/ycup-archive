@@ -59,7 +59,7 @@ export default defineConfig({
               ]
             },
             {
-              text: 'Stage 3 (ヨスガノソラ) 3.31',
+              text: 'Stage 3 (ヨスガノソラ) 4.7',
               collapsed: true,
               items: [
                 { text: '题目预览', link: '/problems/2026/w03/' },
