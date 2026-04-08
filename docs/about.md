@@ -28,6 +28,6 @@ YCup 是一个旨在服务上海市曹杨第二中学学生的公益性组织，
 
 ## 信息
 
-官方存档网站：http://20.219.50.5/ycup-archive/
+官方存档网站：http://ycup.club/ycup-archive/
 
 联系方式：微信 wangtaochun805，QQ 1948735630

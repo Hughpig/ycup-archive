@@ -1,1 +1,1 @@
-![](/problems/2026/w02/image.png)
+<PdfBox url="/problems/2026/w02/solution.pdf" />
