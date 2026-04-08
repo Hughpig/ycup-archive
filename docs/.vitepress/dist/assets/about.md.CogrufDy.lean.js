@@ -1,1 +1,0 @@
-import{_ as t,o as r,c as e,ai as o}from"./chunks/framework.CEhIufms.js";const d=JSON.parse('{"title":"About","description":"","frontmatter":{},"headers":[],"relativePath":"about.md","filePath":"about.md"}'),n={name:"about.md"};function s(p,a,i,h,l,u){return r(),e("div",null,[...a[0]||(a[0]=[o("",17)])])}const _=t(n,[["render",s]]);export{d as __pageData,_ as default};
