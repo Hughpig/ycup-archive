@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 // 注意：如果运行报错，请确保执行了 pnpm add -D markdown-it-katex
 // @ts-ignore
-import markdownItKatex from 'markdown-it-katex'
+import mathjax3 from 'markdown-it-mathjax3'
 
 export default defineConfig({
   base: '/ycup-archive/',
@@ -10,16 +10,49 @@ export default defineConfig({
   
   // 必须在 head 中引入 KaTeX 的 CSS，否则公式会乱码（只有源码没有样式）
   head: [
-    ['link', { 
-      rel: 'stylesheet', 
-      href: 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css' 
-    }]
+  // 1. 引入 MathJax 配置（必须在脚本之前）
+   [
+     'script',
+     {},
+     `
+     window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+          displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
+        },
+        options: {
+         renderActions: {
+           findScript: [10, function (doc) {
+             for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+               const display = !!node.type.match(/; *mode=display/);
+               const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+               const text = document.createTextNode('');
+               node.parentNode.replaceChild(text, node);
+                math.start = {node: text, delim: '', n: 0};
+                math.end = {node: text, delim: '', n: 0};
+               doc.math.push(math);
+             }
+           }, '']
+         }
+        }
+      };
+     `
+   ],
+   // 2. 引入 MathJax 核心脚本
+   [
+     'script',
+      {
+        src: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
+        id: 'MathJax-script',
+        async: ''
+      }
+    ]
   ],
 
   markdown: {
     // 启用 KaTeX 插件
     config: (md) => {
-      md.use(markdownItKatex)
+      //md.use(mathjax3)
     }
   },
 
