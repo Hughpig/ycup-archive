@@ -63,7 +63,8 @@ export default defineConfig({
       { text: '指南', link: '/guide' },
       { text: '2026 赛季', link: '/problems/2026/w01/' },
       { text: '赛程', link: '/schedule' },
-      { text: '关于', link: '/about' }
+      { text: '关于', link: '/about' },
+      { text: '排行榜', link: '/rankings' }
     ],
 
     // 侧边栏：支持多级折叠
