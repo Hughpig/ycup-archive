@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 import mathjax3 from 'markdown-it-mathjax3'
 
 export default defineConfig({
-  base: '/',
+  base: process.env.GITHUB_PAGES ? '/ycup-archive/' : '/',
   title: "ycup Archive",
   description: "ycup 数学竞赛数字化存档站",
   

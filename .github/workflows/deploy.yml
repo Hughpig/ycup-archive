@@ -28,6 +28,8 @@ jobs:
         run: pnpm install
       - name: Build with VitePress
         run: pnpm run docs:build
+        env:
+          GITHUB_ACTIONS: true
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
