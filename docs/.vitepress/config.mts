@@ -100,6 +100,15 @@ export default defineConfig({
                 { text: '官方题解', link: '/problems/2026/w03/solution' },
                 { text: '赛后战报', link: '/problems/2026/w03/report' }
               ]
+            },
+            {
+              text: 'Stage 4 红楼杯 4.14',
+              collapsed: true,
+              items: [
+                { text: '题目预览', link: '/problems/2026/w04/' },
+                { text: '官方题解', link: '/problems/2026/w04/solution' },
+                { text: '赛后战报', link: '/problems/2026/w04/report' }
+              ]
             }
           ]
         }
