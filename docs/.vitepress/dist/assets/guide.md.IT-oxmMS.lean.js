@@ -1,1 +1,0 @@
-import{_ as i,o as r,c as l,ai as o}from"./chunks/framework.BH_J6TYN.js";const h=JSON.parse('{"title":"YCup 数学竞赛赛事规则与说明","description":"","frontmatter":{},"headers":[],"relativePath":"guide.md","filePath":"guide.md"}'),a={name:"guide.md"};function e(n,t,s,g,$,d){return r(),l("div",null,[...t[0]||(t[0]=[o("",29)])])}const u=i(a,[["render",e]]);export{h as __pageData,u as default};
