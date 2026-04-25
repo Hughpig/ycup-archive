@@ -1,0 +1,2614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YCup数学竞赛模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 顶部状态栏 */
+        .status-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .status-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .progress-bar {
+            width: 150px;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-text {
+            font-size: 11px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 面板通用样式 */
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        /* 左侧面板 */
+        .stage-name {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .stage-name.post-competition {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .action-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .post-action-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(240, 147, 251, 0.3);
+        }
+
+        .post-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(240, 147, 251, 0.4);
+        }
+
+        .post-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 比赛预告 */
+        .preview-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .preview-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .preview-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+
+        .difficulty-label {
+            font-weight: 500;
+        }
+
+        .difficulty-easy { color: #4caf50; }
+        .difficulty-medium { color: #ff9800; }
+        .difficulty-hard { color: #f44336; }
+        .difficulty-extreme { color: #9c27b0; }
+
+        /* 比赛界面样式 */
+        .competition-interface {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .competition-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .competition-header h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .competition-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .question-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .question-difficulty {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .question-difficulty.easy {
+            background: #4caf50;
+            color: white;
+        }
+
+        .question-difficulty.medium {
+            background: #ff9800;
+            color: white;
+        }
+
+        .question-difficulty.hard {
+            background: #f44336;
+            color: white;
+        }
+
+        .question-difficulty.extreme {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .question-info {
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .countdown {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .success-rate {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4caf50;
+        }
+
+        .energy-cost {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ff9800;
+        }
+
+        .attempts-info {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2196f3;
+        }
+
+        .max-attempts-msg {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+            color: #856404;
+            font-weight: bold;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-answer {
+            padding: 12px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-answer:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-skip {
+            padding: 12px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-skip:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .btn-answer:disabled,
+        .btn-skip:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 比赛结果样式 */
+        .competition-result {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .result-rank {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .result-score {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        .ranking-table th,
+        .ranking-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .ranking-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .ranking-table .current-player {
+            background: #fff3cd;
+            font-weight: bold;
+        }
+
+        .reward-section {
+            background: #d4edda;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        /* 右侧面板 - 事件日志 */
+        .event-log {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .event-log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .event-log::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .event-log::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .event-list {
+            list-style: none;
+        }
+
+        .event-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            line-height: 1.6;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .event-time {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .event-content {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .event-success {
+            border-left-color: #4caf50;
+        }
+
+        .event-failure {
+            border-left-color: #f44336;
+        }
+
+        .event-skip {
+            border-left-color: #ff9800;
+        }
+
+        /* 底部区域 */
+        .bottom-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .inventory {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .inventory-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .inventory-items {
+            color: #999;
+            font-style: italic;
+        }
+
+        .inventory-item {
+            display: inline-block;
+            background: #f8f9fa;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            margin: 2px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .bottom-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .bottom-btn {
+            padding: 10px 25px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bottom-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .bottom-btn.reset {
+            border-color: #f44336;
+            color: #f44336;
+        }
+
+        .bottom-btn.reset:hover {
+            background: #f44336;
+            color: white;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .status-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .progress-bar {
+                width: 120px;
+            }
+
+            .bottom-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .bottom-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .question-actions {
+                flex-direction: column;
+            }
+
+            .btn-answer,
+            .btn-skip {
+                width: 100%;
+            }
+        }
+
+        /* 静音按钮激活状态 */
+        .bottom-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* BUFF显示 */
+        .buff-display {
+            margin-top: 10px;
+            padding: 8px;
+            background: #fff3cd;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #856404;
+            display: none;
+        }
+
+        .buff-display.show {
+            display: block;
+        }
+
+        .next-buff-display {
+            margin-top: 10px;
+            padding: 8px;
+            background: #d1ecf1;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #0c5460;
+            display: none;
+        }
+
+        .next-buff-display.show {
+            display: block;
+        }
+
+        /* 出题界面样式 */
+        .create-problem-interface {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .create-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-hint {
+            font-size: 13px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .btn-submit-problem {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit-problem:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit-problem:active {
+            transform: translateY(0);
+        }
+
+        .btn-end-week {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(240, 147, 251, 0.3);
+            margin-top: 15px;
+        }
+
+        .btn-end-week:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(240, 147, 251, 0.4);
+        }
+
+        .problem-result {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-score-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .result-rewards {
+            background: #d4edda;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .result-penalty {
+            background: #f8d7da;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        /* 出题后赛后阶段样式 */
+        .post-create-interface {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* 事件系统样式 */
+        .event-pre { border-left-color: #2196F3; }
+        .event-during { border-left-color: #FF9800; }
+        .event-post { border-left-color: #9C27B0; }
+        .event-hidden { border-left-color: #F44336; }
+
+        .event-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .event-modal {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .event-modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .event-modal-desc {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .event-modal-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .event-modal-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .event-modal-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .event-modal-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .event-modal-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .event-modal-btn.secondary:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        /* 事件开关样式 */
+        .event-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .event-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部状态栏 -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">当前周数</div>
+                <div class="status-value" id="week">第 1 周</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">精力值</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="energy-bar" style="width: 100%">
+                        <span class="progress-text">100/100</span>
+                    </div>
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">数学水平</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="math-bar" style="width: 65%">
+                        <span class="progress-text">65/100</span>
+                    </div>
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">队伍默契</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="teamwork-bar" style="width: 50%">
+                        <span class="progress-text">50/100</span>
+                    </div>
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">声望值</div>
+                <div class="status-value" id="reputation">10</div>
+            </div>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <!-- 左侧面板 -->
+            <div class="panel" id="left-panel">
+                <div class="panel-title">行动面板</div>
+                <div class="stage-name" id="stage-name">赛前阶段</div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="performAction('normal')">🎯 正常参赛</button>
+                    <button class="action-btn" onclick="performAction('cram')">📚 临时抱佛脚</button>
+                    <button class="action-btn" onclick="performAction('discuss')">💬 和队友讨论策略</button>
+                    <button class="action-btn" onclick="performAction('create')">✏️ 放弃参赛去出题</button>
+                    <button class="action-btn" onclick="performAction('rest')">😴 休息</button>
+                </div>
+
+                <div class="buff-display" id="buff-display"></div>
+                <div class="next-buff-display" id="next-buff-display"></div>
+
+                <div class="preview-section">
+                    <div class="preview-title">📊 本周比赛预告</div>
+                    <div class="preview-info">
+                        <div class="preview-item">
+                            <span>题目总数</span>
+                            <strong id="preview-total">8 题</strong>
+                        </div>
+                        <div class="preview-item">
+                            <span class="difficulty-label difficulty-easy">Easy</span>
+                            <strong id="preview-easy">2 题</strong>
+                        </div>
+                        <div class="preview-item">
+                            <span class="difficulty-label difficulty-medium">Medium</span>
+                            <strong id="preview-medium">3 题</strong>
+                        </div>
+                        <div class="preview-item">
+                            <span class="difficulty-label difficulty-hard">Hard</span>
+                            <strong id="preview-hard">2 题</strong>
+                        </div>
+                        <div class="preview-item">
+                            <span class="difficulty-label difficulty-extreme">Extreme</span>
+                            <strong id="preview-extreme">1 题</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧面板 -->
+            <div class="panel">
+                <div class="panel-title">📋 事件日志</div>
+                <div class="event-log">
+                    <ul class="event-list" id="event-log">
+                        <li class="event-item">
+                            <div class="event-time">第 1 周 - 开始</div>
+                            <div class="event-content">欢迎来到 YCup 数学竞赛模拟器！</div>
+                        </li>
+                        <li class="event-item">
+                            <div class="event-time">第 1 周 - 提示</div>
+                            <div class="event-content">合理分配精力和时间，提升你的数学水平吧！</div>
+                        </li>
+                        <li class="event-item">
+                            <div class="event-time">第 1 周 - 提示</div>
+                            <div class="event-content">点击左侧按钮开始你的第一次行动！</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部区域 -->
+        <div class="bottom-bar">
+            <div class="inventory">
+                <span class="inventory-label">🎒 背包道具：</span>
+                <span class="inventory-items" id="inventory-display">暂无道具</span>
+            </div>
+            <div class="event-toggle">
+                <input type="checkbox" id="event-toggle" checked onchange="toggleEvents()">
+                <label for="event-toggle">随机事件</label>
+            </div>
+            <div class="bottom-buttons">
+                <button class="bottom-btn" id="mute-btn" onclick="toggleMute()">🔊 静音</button>
+                <button class="bottom-btn reset" onclick="resetGame()">🔄 重置游戏</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            week: 1,
+            energy: 100,
+            math: 65,
+            teamwork: 50,
+            reputation: 10,
+            isMuted: false,
+            mathBuff: 0,
+            extraSubmits: 0,
+            skipCompetition: false,
+            postActionCount: 0,
+            inventory: [],
+            isPostCompetition: false,
+            isPostCreate: false,
+            askCount: 0,
+            nextBuff: 0,
+            problemsAdopted: 0,
+            problemsCreated: 0,
+            createDebuff: 0,
+            bestRank: 999,
+            firstPlaceCount: 0,
+            everParticipated: false,
+            eventsEnabled: true,
+            triggeredEvents: [],
+            competitionModifier: {
+                extraPenalty: 0,
+                correctRateMod: 0,
+                autoCorrectNext: false,
+                mathTempReduction: 0,
+                opponentCorrectRateMod: {},
+                difficultyUpgrade: false
+            },
+            title: ''
+        };
+
+        let currentCompetition = null;
+        let lastCompetitionQuestions = [];
+
+        // 事件池
+        const EVENT_POOL = [
+            {
+                id: 1,
+                name: '1048576的情书陷阱',
+                desc: '你收到一封神秘的匿名情书，里面夹带着一张罚时卡...',
+                timing: 'pre',
+                hidden: false,
+                isChoice: true,
+                choicePrompt: '是否相信这封情书？',
+                choiceTrust: { extraPenalty: 5, teamwork: -5, energy: -10 },
+                choiceDoubt: { teamwork: 2 },
+                checkCondition: function() { return true; }
+            },
+            {
+                id: 2,
+                name: '王以老师的匿名表白',
+                desc: '王以老师收到了匿名表白信，导致某个队伍士气大振！',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    var teams = ['AI队伍-阿尔法', 'AI队伍-贝塔', 'AI队伍-伽马', '牛大队', '1048576', 'SLD战队', '想得出队名', '还没想好队名', '周老师万岁', '一回合一次', '冰瓜投手', '0D000721'];
+                    var randomTeam = teams[Math.floor(Math.random() * teams.length)];
+                    gameState.competitionModifier.opponentCorrectRateMod[randomTeam] = 5;
+                    return '随机队伍【' + randomTeam + '】本场正确率+5%！';
+                }
+            },
+            {
+                id: 3,
+                name: '想得出队名的队内恋情',
+                desc: '想得出队名队伍内部传出恋情，影响了比赛状态...',
+                timing: 'pre',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    gameState.competitionModifier.correctRateMod = -10;
+                    return '本场玩家正确率-10%！';
+                }
+            },
+            {
+                id: 4,
+                name: '分手信风波',
+                desc: '你收到了分手信，心情低落影响数学发挥...',
+                timing: 'pre',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    gameState.competitionModifier.mathTempReduction = 15;
+                    return '本场数学水平临时-15！';
+                }
+            },
+            {
+                id: 5,
+                name: '计算器没电',
+                desc: '比赛进行中，你的计算器突然没电了...',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    gameState.competitionModifier.extraPenalty += 2;
+                    return '本场罚时+2！';
+                }
+            },
+            {
+                id: 6,
+                name: '草稿纸被风吹走',
+                desc: '考场窗户没关，草稿纸被一阵风吹走了...',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    if (lastCompetitionQuestions && lastCompetitionQuestions.length > 0) {
+                        var solved = lastCompetitionQuestions.filter(function(q) { return q.success; });
+                        if (solved.length > 0) {
+                            var randomQ = solved[Math.floor(Math.random() * solved.length)];
+                            randomQ.success = false;
+                            randomQ.answered = false;
+                            return '随机一道已答对的题变成错误！';
+                        }
+                    }
+                    return '没有已答对的题目可以吹走草稿纸。';
+                }
+            },
+            {
+                id: 7,
+                name: '把答案写在手上被当成作弊',
+                desc: '监考老师发现你把答案写在手上，判定为作弊...',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    gameState.competitionModifier.extraPenalty += 2;
+                    gameState.teamwork = Math.max(0, gameState.teamwork - 5);
+                    return '罚时+2，默契-5！';
+                }
+            },
+            {
+                id: 8,
+                name: '外卖送到考场',
+                desc: '外卖小哥直接把外卖送到了考场门口，打扰了比赛...',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    gameState.competitionModifier.extraPenalty += 3;
+                    return '本场罚时+3！';
+                }
+            },
+            {
+                id: 9,
+                name: '验题人剧透',
+                desc: '验题人不小心向某个队伍剧透了题目答案...',
+                timing: 'pre',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    var teams = ['AI队伍-阿尔法', 'AI队伍-贝塔', 'AI队伍-伽马', '牛大队', '1048576', 'SLD战队', '想得出队名', '还没想好队名', '周老师万岁', '一回合一次', '冰瓜投手', '0D000721'];
+                    var randomTeam = teams[Math.floor(Math.random() * teams.length)];
+                    gameState.competitionModifier.opponentCorrectRateMod[randomTeam] = 20;
+                    return '随机队伍【' + randomTeam + '】正确率+20%！';
+                }
+            },
+            {
+                id: 10,
+                name: '出题人自己忘记答案',
+                desc: '出题人自己也算不出正确答案，直接给了pass...',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    if (currentCompetition && currentCompetition.questions) {
+                        var idx = currentCompetition.currentIndex;
+                        if (idx < currentCompetition.questions.length) {
+                            currentCompetition.questions[idx].autoPass = true;
+                            return '当前题目自动正确！';
+                        }
+                    }
+                    return '没有正在进行的题目。';
+                }
+            },
+            {
+                id: 11,
+                name: '题目印刷错误',
+                desc: '题目印刷有误，可以重新提交，但已消耗的精力不退还...',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    if (currentCompetition && currentCompetition.questions) {
+                        var idx = currentCompetition.currentIndex;
+                        if (idx < currentCompetition.questions.length) {
+                            currentCompetition.questions[idx].allowResubmit = true;
+                            return '当前题目可重提交，已消耗精力不退还！';
+                        }
+                    }
+                    return '没有正在进行的题目。';
+                }
+            },
+            {
+                id: 12,
+                name: '朋友圈吐槽被截图',
+                desc: '你在朋友圈吐槽比赛被截图并发到了群里...',
+                timing: 'post',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    gameState.competitionModifier.difficultyUpgrade = true;
+                    return '下周所有题目难度+1级！';
+                }
+            },
+            {
+                id: 13,
+                name: '直播比赛被举报',
+                desc: '你的比赛直播被举报了，导致精力消耗...',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    gameState.energy = Math.max(0, gameState.energy - 5);
+                    return '玩家精力-5！';
+                }
+            },
+            {
+                id: 14,
+                name: '粉丝应援团太吵',
+                desc: '你的粉丝应援团在考场外太吵，影响比赛...',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    gameState.competitionModifier.extraPenalty += 5;
+                    return '本场罚时+5！';
+                }
+            },
+            {
+                id: 15,
+                name: '王以神了显灵',
+                desc: '王以神了突然显灵，保佑你下一题自动正确！',
+                timing: 'during',
+                hidden: false,
+                isChoice: false,
+                effect: function() {
+                    gameState.competitionModifier.autoCorrectNext = true;
+                    gameState.teamwork = Math.min(100, gameState.teamwork + 5);
+                    return '下一道题自动正确，默契+5！';
+                }
+            },
+            {
+                id: 16,
+                name: '1048576的逆袭',
+                desc: '（隐藏事件）之前触发的情书陷阱产生了后续影响...',
+                timing: 'post',
+                hidden: true,
+                isChoice: false,
+                checkCondition: function() {
+                    return gameState.triggeredEvents.includes(1) && currentCompetition && getPlayerRank() === 1;
+                },
+                effect: function() {
+                    gameState.math = Math.min(100, gameState.math + 5);
+                    gameState.title = '情书杀手';
+                    return '数学永久+5，获得头衔"情书杀手"！';
+                }
+            }
+        ];
+
+        // 获取玩家排名的辅助函数
+        function getPlayerRank() {
+            if (!currentCompetition) return 999;
+            var opponents = [
+                { name: 'AI队伍-阿尔法', score: Math.floor(Math.random() * 10) + 3 },
+                { name: 'AI队伍-贝塔', score: Math.floor(Math.random() * 10) + 3 },
+                { name: 'AI队伍-伽马', score: Math.floor(Math.random() * 10) + 3 },
+                { name: '牛大队', score: Math.floor(Math.random() * 10) + 3 },
+                { name: '1048576', score: Math.floor(Math.random() * 10) + 3 },
+                { name: 'SLD战队', score: Math.floor(Math.random() * 10) + 3 },
+                { name: '想得出队名', score: Math.floor(Math.random() * 10) + 3 },
+                { name: '还没想好队名', score: Math.floor(Math.random() * 10) + 3 },
+                { name: '周老师万岁', score: Math.floor(Math.random() * 10) + 3 },
+                { name: '一回合一次', score: Math.floor(Math.random() * 10) + 3 },
+                { name: '冰瓜投手', score: Math.floor(Math.random() * 10) + 3 },
+                { name: '0D000721', score: Math.floor(Math.random() * 10) + 3 }
+            ];
+            var allScores = [{ name: '你', score: currentCompetition.score, isPlayer: true }];
+            for (var i = 0; i < opponents.length; i++) {
+                allScores.push(opponents[i]);
+            }
+            allScores.sort(function(a, b) { return b.score - a.score; });
+            for (var j = 0; j < allScores.length; j++) {
+                if (allScores[j].isPlayer) return j + 1;
+            }
+            return 999;
+        }
+
+        // 触发事件
+        function triggerEvents(timing) {
+            if (!gameState.eventsEnabled) return;
+
+            var eventsThisTiming = 0;
+            var maxEvents = Math.random() < 0.3 ? 2 : (Math.random() < 0.6 ? 1 : 0);
+
+            for (var i = 0; i < EVENT_POOL.length && eventsThisTiming < maxEvents; i++) {
+                var event = EVENT_POOL[i];
+                if (event.timing !== timing) continue;
+                if (event.hidden && !event.checkCondition()) continue;
+
+                if (Math.random() < 0.4) {
+                    eventsThisTiming++;
+
+                    if (event.isChoice) {
+                        showEventChoiceModal(event);
+                        return;
+                    } else {
+                        var result = event.effect();
+                        gameState.triggeredEvents.push(event.id);
+                        var logType = timing === 'pre' ? 'event-pre' : (timing === 'during' ? 'event-during' : 'event-post');
+                        addLog('【事件】' + event.name + '：' + result, logType);
+                    }
+                }
+            }
+        }
+
+        // 显示事件选择模态框
+        function showEventChoiceModal(event) {
+            var overlay = document.createElement('div');
+            overlay.className = 'event-modal-overlay';
+            overlay.id = 'event-modal';
+
+            overlay.innerHTML = '<div class="event-modal">' +
+                '<div class="event-modal-title">【事件】' + event.name + '</div>' +
+                '<div class="event-modal-desc">' + event.desc + '</div>' +
+                '<div class="event-modal-choices">' +
+                '<button class="event-modal-btn primary" onclick="handleEventChoice(' + event.id + ', true)">相信</button>' +
+                '<button class="event-modal-btn secondary" onclick="handleEventChoice(' + event.id + ', false)">识破</button>' +
+                '</div></div>';
+
+            document.body.appendChild(overlay);
+        }
+
+        // 处理事件选择
+        function handleEventChoice(eventId, isTrust) {
+            var event = EVENT_POOL.find(function(e) { return e.id === eventId; });
+            if (!event) return;
+
+            var result = '';
+            if (isTrust) {
+                if (event.choiceTrust.extraPenalty) gameState.competitionModifier.extraPenalty += event.choiceTrust.extraPenalty;
+                if (event.choiceTrust.teamwork) gameState.teamwork = Math.max(0, gameState.teamwork + event.choiceTrust.teamwork);
+                if (event.choiceTrust.energy) gameState.energy = Math.max(0, gameState.energy + event.choiceTrust.energy);
+                result = '你选择了相信。罚时+' + (event.choiceTrust.extraPenalty || 0) + '，默契' + (event.choiceTrust.teamwork >= 0 ? '+' : '') + event.choiceTrust.teamwork;
+            } else {
+                if (event.choiceDoubt.teamwork) gameState.teamwork = Math.min(100, gameState.teamwork + event.choiceDoubt.teamwork);
+                result = '你识破了陷阱！默契+' + event.choiceDoubt.teamwork;
+            }
+
+            gameState.triggeredEvents.push(event.id);
+            addLog('【事件】' + event.name + '：' + result, 'event-pre');
+
+            var modal = document.getElementById('event-modal');
+            if (modal) modal.remove();
+
+            updateUI();
+        }
+
+        // 重置比赛modifier
+        function resetCompetitionModifier() {
+            gameState.competitionModifier = {
+                extraPenalty: 0,
+                correctRateMod: 0,
+                autoCorrectNext: false,
+                mathTempReduction: 0,
+                opponentCorrectRateMod: {},
+                difficultyUpgrade: false
+            };
+        }
+
+        // 切换事件开关
+        function toggleEvents() {
+            var eventToggle = document.getElementById('event-toggle');
+            gameState.eventsEnabled = eventToggle.checked;
+            addLog('随机事件已' + (gameState.eventsEnabled ? '开启' : '关闭'), 'normal');
+        }
+
+        // 更新UI
+        function updateUI() {
+            document.getElementById('week').textContent = '第 ' + gameState.week + ' 周';
+            
+            var energyBar = document.getElementById('energy-bar');
+            energyBar.style.width = gameState.energy + '%';
+            energyBar.querySelector('.progress-text').textContent = gameState.energy + '/100';
+            
+            var mathBar = document.getElementById('math-bar');
+            mathBar.style.width = gameState.math + '%';
+            mathBar.querySelector('.progress-text').textContent = gameState.math + '/100';
+            
+            var teamworkBar = document.getElementById('teamwork-bar');
+            teamworkBar.style.width = gameState.teamwork + '%';
+            teamworkBar.querySelector('.progress-text').textContent = gameState.teamwork + '/100';
+            
+            document.getElementById('reputation').textContent = gameState.reputation;
+            
+            updateBuffDisplay();
+            updateNextBuffDisplay();
+            updateInventoryDisplay();
+        }
+
+        function updateBuffDisplay() {
+            var buffDisplay = document.getElementById('buff-display');
+            if (!buffDisplay) return; // 比赛期间左侧面板被替换，该元素可能不存在
+            var buffText = '';
+
+            if (gameState.mathBuff > 0) {
+                buffText += '📈 数学提升 +' + gameState.mathBuff + '% ';
+            }
+            if (gameState.extraSubmits > 0) {
+                buffText += '🎯 额外提交 +' + gameState.extraSubmits + ' ';
+            }
+            if (gameState.skipCompetition) {
+                buffText += '⏭️ 跳过比赛 ';
+            }
+
+            if (buffText) {
+                buffDisplay.textContent = '当前增益：' + buffText;
+                buffDisplay.classList.add('show');
+            } else {
+                buffDisplay.classList.remove('show');
+            }
+        }
+
+        function updateNextBuffDisplay() {
+            var nextBuffDisplay = document.getElementById('next-buff-display');
+            if (!nextBuffDisplay) return; // 比赛期间该元素可能不存在
+
+            if (gameState.nextBuff > 0) {
+                nextBuffDisplay.textContent = '下场比赛加成：成功率 +' + (gameState.nextBuff * 100) + '%';
+                nextBuffDisplay.classList.add('show');
+            } else {
+                nextBuffDisplay.classList.remove('show');
+            }
+        }
+
+        function updateInventoryDisplay() {
+            var inventoryDisplay = document.getElementById('inventory-display');
+            if (!inventoryDisplay) return; // 比赛期间该元素可能不存在
+            
+            if (gameState.inventory.length === 0) {
+                inventoryDisplay.textContent = '暂无道具';
+                inventoryDisplay.className = 'inventory-items';
+            } else {
+                var html = '';
+                for (var i = 0; i < gameState.inventory.length; i++) {
+                    html += '<span class="inventory-item">' + gameState.inventory[i] + '</span>';
+                }
+                inventoryDisplay.innerHTML = html;
+                inventoryDisplay.className = 'inventory-items show';
+            }
+        }
+
+        function addLog(content, type) {
+            type = type || 'normal';
+            var logList = document.getElementById('event-log');
+            var logItem = document.createElement('li');
+            logItem.className = 'event-item event-' + type;
+            logItem.innerHTML = '<div class="event-time">第 ' + gameState.week + ' 周 - 事件</div><div class="event-content">' + content + '</div>';
+            logList.insertBefore(logItem, logList.firstChild);
+            
+            while (logList.children.length > 50) {
+                logList.removeChild(logList.lastChild);
+            }
+        }
+
+        function performAction(action) {
+            var message = '';
+            var canExecute = true;
+
+            switch(action) {
+                case 'normal':
+                    if (gameState.skipCompetition) {
+                        gameState.skipCompetition = false;
+                        gameState.week++;
+                        addLog('你放弃了本周比赛。');
+                        updateUI();
+                        return;
+                    }
+                    startCompetition();
+                    return;
+
+                case 'cram':
+                    if (gameState.energy < 10) {
+                        alert('精力不足！需要至少10点精力才能临时抱佛脚。');
+                        canExecute = false;
+                    } else {
+                        gameState.energy -= 10;
+                        gameState.mathBuff = 10;
+                        message = '你临时抱佛脚，消耗10精力，获得数学临时提升 +10%（仅对下次比赛有效）。';
+                    }
+                    break;
+
+                case 'discuss':
+                    if (gameState.energy < 5) {
+                        alert('精力不足！需要至少5点精力才能和队友讨论策略。');
+                        canExecute = false;
+                    } else {
+                        gameState.energy -= 5;
+                        gameState.teamwork = Math.min(100, gameState.teamwork + 5);
+                        gameState.extraSubmits = 1;
+                        message = '你和队友讨论了策略，消耗5精力，队伍默契提升，获得额外提交次数 +1。';
+                    }
+                    break;
+
+                case 'create':
+                    if (gameState.energy < 15) {
+                        alert('精力不足！需要至少15点精力才能放弃参赛去出题。');
+                        canExecute = false;
+                    } else {
+                        gameState.energy -= 15;
+                        showCreateProblemInterface();
+                        return;
+                    }
+                    break;
+
+                case 'rest':
+                    gameState.energy = Math.min(100, gameState.energy + 15);
+                    message = '你选择了休息，精力恢复了15点！';
+                    break;
+            }
+
+            if (!canExecute) {
+                return;
+            }
+
+            gameState.week++;
+            addLog(message);
+            updateUI();
+
+            // 检查是否赛季已结束（15周后）
+            if (gameState.week > 15) {
+                showEnding();
+            }
+        }
+
+        function startCompetition() {
+            // 重置比赛modifier
+            resetCompetitionModifier();
+
+            // 标记已参赛（用于隐藏结局判断）
+            gameState.everParticipated = true;
+
+            // 触发赛前事件
+            triggerEvents('pre');
+            
+            var numQuestions = Math.floor(Math.random() * 5) + 9;
+            var difficulties = ['Easy', 'Medium', 'Hard', 'Extreme'];
+            var difficultyNames = {
+                'Easy': '简单',
+                'Medium': '中等',
+                'Hard': '困难',
+                'Extreme': '极难'
+            };
+            
+            var questions = [];
+            for (var i = 0; i < numQuestions; i++) {
+                var difficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
+                
+                // 处理difficultyUpgrade modifier
+                if (gameState.competitionModifier.difficultyUpgrade) {
+                    var diffIndex = difficulties.indexOf(difficulty);
+                    if (diffIndex < difficulties.length - 1) {
+                        difficulty = difficulties[diffIndex + 1];
+                    }
+                    gameState.competitionModifier.difficultyUpgrade = false; // 只影响下周
+                }
+                
+                var thinkingTime = getThinkingTime(difficulty);
+                var successProb = calculateSuccessProbability(difficulty);
+                var energyCost = getEnergyCost();
+                
+                questions.push({
+                    id: i + 1,
+                    difficulty: difficulty,
+                    difficultyName: difficultyNames[difficulty],
+                    thinkingTime: thinkingTime,
+                    successProb: successProb,
+                    energyCost: energyCost,
+                    attempts: 0,
+                    maxAttempts: 5,
+                    answered: false,
+                    skipped: false,
+                    success: false,
+                    autoPass: false,
+                    allowResubmit: false
+                });
+            }
+
+            currentCompetition = {
+                questions: questions,
+                currentIndex: 0,
+                score: 0,
+                totalQuestions: numQuestions
+            };
+
+            lastCompetitionQuestions = questions;
+            
+            // 触发赛中事件
+            triggerEvents('during');
+            
+            updatePreviewDisplay(questions);
+            renderCompetitionQuestion();
+        }
+
+        function getThinkingTime(difficulty) {
+            switch(difficulty) {
+                case 'Easy': return Math.floor(Math.random() * 5) + 3;
+                case 'Medium': return Math.floor(Math.random() * 8) + 8;
+                case 'Hard': return Math.floor(Math.random() * 10) + 15;
+                case 'Extreme': return Math.floor(Math.random() * 15) + 25;
+                default: return 10;
+            }
+        }
+
+        function getEnergyCost() {
+            return Math.floor(Math.random() * 11) + 5; // 5~15 随机整数
+        }
+
+        function calculateSuccessProbability(difficulty) {
+            var baseProb = {
+                'Easy': 0.8,
+                'Medium': 0.6,
+                'Hard': 0.4,
+                'Extreme': 0.2
+            };
+
+            var base = baseProb[difficulty];
+            // 应用临时数学减少
+            var mathTemp = Math.max(0, gameState.math - (gameState.competitionModifier.mathTempReduction || 0));
+            var correction = (mathTemp - 60) / 100 * 0.2 + (gameState.teamwork - 50) / 100 * 0.1;
+            var buffBonus = (gameState.mathBuff > 0 ? 0.1 : 0) + (gameState.extraSubmits > 0 ? 0.1 : 0) + gameState.nextBuff;
+            var debuff = gameState.createDebuff; // 出题失败导致的debuff
+            var correctRateMod = (gameState.competitionModifier.correctRateMod || 0) / 100; // 转换为小数
+            var finalProb = Math.min(0.95, Math.max(0.05, base + correction + buffBonus - debuff + correctRateMod));
+
+            return Math.round(finalProb * 100);
+        }
+
+        function calculateSuccessProbabilityNoBuff(difficulty) {
+            var baseProb = {
+                'Easy': 0.8,
+                'Medium': 0.6,
+                'Hard': 0.4,
+                'Extreme': 0.2
+            };
+            
+            var base = baseProb[difficulty];
+            var correction = (gameState.math - 60) / 100 * 0.2 + (gameState.teamwork - 50) / 100 * 0.1;
+            var finalProb = Math.min(0.95, Math.max(0.05, base + correction));
+            
+            return Math.round(finalProb * 100);
+        }
+
+        function updatePreviewDisplay(questions) {
+            var easyCount = 0, mediumCount = 0, hardCount = 0, extremeCount = 0;
+            for (var i = 0; i < questions.length; i++) {
+                if (questions[i].difficulty === 'Easy') easyCount++;
+                if (questions[i].difficulty === 'Medium') mediumCount++;
+                if (questions[i].difficulty === 'Hard') hardCount++;
+                if (questions[i].difficulty === 'Extreme') extremeCount++;
+            }
+            
+            document.getElementById('preview-total').textContent = questions.length + ' 题';
+            document.getElementById('preview-easy').textContent = easyCount + ' 题';
+            document.getElementById('preview-medium').textContent = mediumCount + ' 题';
+            document.getElementById('preview-hard').textContent = hardCount + ' 题';
+            document.getElementById('preview-extreme').textContent = extremeCount + ' 题';
+        }
+
+        function renderCompetitionQuestion() {
+            var comp = currentCompetition;
+            
+            if (!comp || comp.currentIndex >= comp.questions.length) {
+                endCompetition();
+                return;
+            }
+
+            var question = comp.questions[comp.currentIndex];
+            
+            // 检查精力是否足够本次提交
+            if (gameState.energy < question.energyCost) {
+                addLog('精力不足（需要 ' + question.energyCost + ' 点），比赛提前结束！', 'failure');
+                endCompetition();
+                return;
+            }
+
+            // 检查是否已达到最大尝试次数
+            var isMaxAttempts = question.attempts >= question.maxAttempts;
+            var attemptsInfo = '尝试次数：' + question.attempts + ' / ' + question.maxAttempts;
+            var energyCostInfo = '每次提交消耗：' + question.energyCost + ' 精力';
+
+            var leftPanel = document.getElementById('left-panel');
+            var html = '<div class="competition-interface">' +
+                '<div class="competition-header"><h2>⚔️ YCup 数学竞赛</h2>' +
+                '<div class="competition-stats">' +
+                '<div class="stat-item">进度：' + (comp.currentIndex + 1) + ' / ' + comp.totalQuestions + '</div>' +
+                '<div class="stat-item">得分：' + comp.score + '</div>' +
+                '<div class="stat-item">精力：' + gameState.energy + '</div>' +
+                '</div></div>' +
+                '<div class="question-card">' +
+                '<div class="question-header">' +
+                '<div class="question-number">第 ' + question.id + ' 题</div>' +
+                '<div class="question-difficulty ' + question.difficulty.toLowerCase() + '">' + question.difficultyName + '</div>' +
+                '</div>' +
+                '<div class="question-info">' +
+                '<div class="info-row"><span>思考耗时：</span><span class="countdown">约 ' + question.thinkingTime + ' 分钟</span></div>' +
+                '<div class="info-row"><span>成功概率：</span><span class="success-rate">' + calculateSuccessProbability(question.difficulty) + '%</span></div>' +
+                '<div class="info-row"><span>精力消耗：</span><span class="energy-cost">🔋 ' + energyCostInfo + '</span></div>' +
+                '<div class="info-row"><span>提交状态：</span><span class="attempts-info">📊 ' + attemptsInfo + '</span></div>' +
+                '</div>';
+            
+            if (isMaxAttempts) {
+                // 已达到最大尝试次数，显示提示并自动进入下一题
+                html += '<div class="max-attempts-msg">⚠️ 已达到最大尝试次数（' + question.maxAttempts + '次），自动跳过此题。</div>';
+                html += '</div></div>';
+                
+                leftPanel.innerHTML = html;
+                
+                // 延迟后自动进入下一题（使用闭包保存当前索引）
+                (function(idx) {
+                    setTimeout(function() {
+                        comp.questions[idx].skipped = true;
+                        addLog('第' + question.id + '题 难度' + question.difficultyName + ' 已达到最大尝试次数，自动跳过。', 'skip');
+                        comp.currentIndex++;
+                        renderCompetitionQuestion();
+                    }, 1500);
+                })(comp.currentIndex);
+                return;
+            }
+            
+            html += '<div class="question-actions">' +
+                '<button class="btn-answer" onclick="answerQuestion(true)">【作答】（消耗' + question.energyCost + '精力）</button>' +
+                '<button class="btn-skip" onclick="answerQuestion(false)">【跳过】</button>' +
+                '</div></div></div>';
+            
+            leftPanel.innerHTML = html;
+        }
+
+        function answerQuestion(attemptAnswer) {
+            try {
+                var comp = currentCompetition;
+                if (!comp) return;
+
+                // 每次都从最新 currentIndex 读取题目
+                if (comp.currentIndex >= comp.questions.length) {
+                    endCompetition();
+                    return;
+                }
+                var question = comp.questions[comp.currentIndex];
+
+                // 检查精力是否足够
+                if (gameState.energy < question.energyCost) {
+                    addLog('精力不足，无法提交！', 'failure');
+                    endCompetition();
+                    return;
+                }
+
+                // 应用autoCorrectNext modifier
+                if (gameState.competitionModifier.autoCorrectNext) {
+                    gameState.energy = Math.max(0, gameState.energy - question.energyCost);
+                    updateUI();
+                    question.attempts++;
+                    question.answered = true;
+                    question.success = true;
+                    comp.score++;
+                    gameState.competitionModifier.autoCorrectNext = false;
+                    addLog('第' + question.id + '题 难度' + question.difficultyName + ' 王以神了显灵！自动正确！（消耗' + question.energyCost + '精力）', 'success');
+                    comp.currentIndex++;
+                    renderCompetitionQuestion();
+                    return;
+                }
+
+                // 应用autoPass标志
+                if (question.autoPass) {
+                    gameState.energy = Math.max(0, gameState.energy - question.energyCost);
+                    updateUI();
+                    question.attempts++;
+                    question.answered = true;
+                    question.success = true;
+                    comp.score++;
+                    addLog('第' + question.id + '题 难度' + question.difficultyName + ' 出题人忘记答案！自动正确！（消耗' + question.energyCost + '精力）', 'success');
+                    comp.currentIndex++;
+                    renderCompetitionQuestion();
+                    return;
+                }
+
+                // 消耗精力
+                gameState.energy = Math.max(0, gameState.energy - question.energyCost);
+                updateUI(); // 更新顶部状态栏的精力显示
+
+                // 增加尝试次数
+                question.attempts++;
+
+                if (attemptAnswer) {
+                    // 每次尝试都根据最新状态重新计算成功概率
+                    var liveProb = calculateSuccessProbability(question.difficulty);
+                    var rand = Math.random();
+                    var success = rand < liveProb / 100;
+
+                    if (success) {
+                        // 成功：得分，进入下一题
+                        question.answered = true;
+                        question.success = true;
+                        comp.score++;
+                        addLog('第' + question.id + '题 难度' + question.difficultyName + ' 第' + question.attempts + '次尝试，成功！（消耗' + question.energyCost + '精力）', 'success');
+                        comp.currentIndex++;
+                    } else {
+                        // 失败
+                        addLog('第' + question.id + '题 难度' + question.difficultyName + ' 第' + question.attempts + '次尝试，失败...（消耗' + question.energyCost + '精力）', 'failure');
+                        if (question.attempts >= question.maxAttempts) {
+                            addLog('第' + question.id + '题 已达到最大尝试次数，自动跳过。', 'skip');
+                            question.skipped = true;
+                            comp.currentIndex++;
+                        }
+                    }
+                } else {
+                    // 跳过此题
+                    question.skipped = true;
+                    addLog('第' + question.id + '题 难度' + question.difficultyName + ' 跳过。（尝试次数：' + question.attempts + '）', 'skip');
+                    comp.currentIndex++;
+                }
+
+                // 检查精力是否耗尽
+                if (gameState.energy <= 0) {
+                    addLog('精力已耗尽，比赛提前结束！', 'failure');
+                    endCompetition();
+                    return;
+                }
+
+                renderCompetitionQuestion();
+            } catch (e) {
+                addLog('发生错误：' + e.toString(), 'failure');
+            }
+        }
+
+        function calculateDifficultyFactor(questions) {
+            // 根据比赛难度分布计算难度系数
+            // 难度系数范围：0.3 (全是Extreme) ~ 1.0 (全是Easy)
+            var totalQuestions = questions.length;
+            if (totalQuestions === 0) return 0.7;
+
+            var difficultyWeights = {
+                'Easy': 1.0,
+                'Medium': 0.75,
+                'Hard': 0.5,
+                'Extreme': 0.3
+            };
+
+            var weightedSum = 0;
+            for (var i = 0; i < questions.length; i++) {
+                weightedSum += difficultyWeights[questions[i].difficulty] || 0.5;
+            }
+
+            return weightedSum / totalQuestions;
+        }
+
+        function endCompetition() {
+            var comp = currentCompetition;
+            if (!comp) return;
+
+            // 根据比赛难度计算难度系数
+            var difficultyFactor = calculateDifficultyFactor(comp.questions);
+
+            // 生成AI队伍得分时考虑难度系数和opponentCorrectRateMod modifier
+            function getOpponentScore(teamName) {
+                // 基础得分范围：根据难度系数调整
+                // 难度系数高(easy多): 最高分高，最低分也高
+                // 难度系数低(hard/extreme多): 最高分低，可能出现0分
+                var maxScore = Math.round(12 * difficultyFactor);
+                var minScore = Math.max(0, Math.round(3 * difficultyFactor) - Math.round((1 - difficultyFactor) * 3));
+                maxScore = Math.max(1, maxScore);
+                minScore = Math.max(0, minScore);
+
+                var baseScore = Math.floor(Math.random() * (maxScore - minScore + 1)) + minScore;
+
+                // 应用modifier
+                var mod = gameState.competitionModifier.opponentCorrectRateMod[teamName];
+                if (mod) {
+                    baseScore += Math.round(mod / 100 * maxScore); // 将百分比转换为得分加成
+                    baseScore = Math.min(20, Math.max(0, baseScore)); // 限制得分范围
+                }
+                return Math.round(baseScore); // 确保返回整数
+            }
+
+            var opponents = [
+                { name: 'AI队伍-阿尔法', score: getOpponentScore('AI队伍-阿尔法') },
+                { name: 'AI队伍-贝塔', score: getOpponentScore('AI队伍-贝塔') },
+                { name: 'AI队伍-伽马', score: getOpponentScore('AI队伍-伽马') },
+                { name: '牛大队', score: getOpponentScore('牛大队') },
+                { name: '1048576', score: getOpponentScore('1048576') },
+                { name: 'SLD战队', score: getOpponentScore('SLD战队') },
+                { name: '想得出队名', score: getOpponentScore('想得出队名') },
+                { name: '还没想好队名', score: getOpponentScore('还没想好队名') },
+                { name: '周老师万岁', score: getOpponentScore('周老师万岁') },
+                { name: '一回合一次', score: getOpponentScore('一回合一次') },
+                { name: '冰瓜投手', score: getOpponentScore('冰瓜投手') },
+                { name: '0D000721', score: getOpponentScore('0D000721') }
+            ];
+
+            var allScores = [
+                { name: '你', score: comp.score, isPlayer: true }
+            ];
+            
+            for (var i = 0; i < opponents.length; i++) {
+                allScores.push(opponents[i]);
+            }
+
+            allScores.sort(function(a, b) { return b.score - a.score; });
+
+            var playerRank = -1;
+            for (var j = 0; j < allScores.length; j++) {
+                if (allScores[j].isPlayer) {
+                    playerRank = j + 1;
+                    break;
+                }
+            }
+
+            // 更新最佳排名和第一名次数（用于结局系统）
+            if (playerRank < gameState.bestRank) {
+                gameState.bestRank = playerRank;
+            }
+            if (playerRank === 1) {
+                gameState.firstPlaceCount++;
+            }
+
+            // 13支队伍排名奖励：第1名+30，第2名+15，第3名+10，第4名+5，第5名+3，第6名+2，第7名不变，第8名-1，第9名-2，第10名-3，第11名-5，第12名-10，第13名-30
+            var repChange = 0;
+            if (playerRank === 1) repChange = 30;
+            else if (playerRank === 2) repChange = 15;
+            else if (playerRank === 3) repChange = 10;
+            else if (playerRank === 4) repChange = 5;
+            else if (playerRank === 5) repChange = 3;
+            else if (playerRank === 6) repChange = 2;
+            else if (playerRank === 7) repChange = 0;
+            else if (playerRank === 8) repChange = -1;
+            else if (playerRank === 9) repChange = -2;
+            else if (playerRank === 10) repChange = -3;
+            else if (playerRank === 11) repChange = -5;
+            else if (playerRank === 12) repChange = -10;
+            else repChange = -30;
+
+            gameState.reputation += repChange;
+
+            var props = ['☕ 咖啡', '📄 参考答案碎片'];
+            var randomProp = props[Math.floor(Math.random() * props.length)];
+            gameState.inventory.push(randomProp);
+
+            addLog('比赛结束！你的得分：' + comp.score + '。排名：第' + playerRank + '名。声望' + (repChange >= 0 ? '+' : '') + repChange + '。获得道具：' + randomProp, 'success');
+
+            gameState.mathBuff = 0;
+            gameState.extraSubmits = 0;
+
+            currentCompetition = null;
+
+            // 触发赛后事件
+            triggerEvents('post');
+
+            showCompetitionResult(allScores, playerRank, comp.score, repChange, randomProp);
+        }
+
+        function showCompetitionResult(allScores, playerRank, playerScore, repChange, prop) {
+            var leftPanel = document.getElementById('left-panel');
+
+            var rankingHTML = '';
+            for (var i = 0; i < allScores.length; i++) {
+                var rowClass = allScores[i].isPlayer ? 'current-player' : '';
+                rankingHTML += '<tr class="' + rowClass + '"><td>第 ' + (i + 1) + ' 名</td><td>' + allScores[i].name + '</td><td>' + Math.round(allScores[i].score) + ' 分</td></tr>';
+            }
+
+            leftPanel.innerHTML = '<div class="competition-interface"><div class="competition-result">' +
+                '<h2>🏆 比赛结果</h2>' +
+                '<div class="result-rank">第 ' + playerRank + ' 名</div>' +
+                '<div class="result-score">你的得分：' + playerScore + ' 分</div>' +
+                '<table class="ranking-table"><thead><tr><th>排名</th><th>队伍</th><th>得分</th></tr></thead>' +
+                '<tbody>' + rankingHTML + '</tbody></table>' +
+                '<div class="reward-section"><h3>🎁 奖励</h3>' +
+                '<p>声望值：' + (repChange >= 0 ? '+' : '') + repChange + '</p>' +
+                '<p>获得道具：' + prop + '</p></div>' +
+                '<button class="action-btn" style="margin-top: 20px;" onclick="enterPostCompetition()">进入赛后阶段</button>' +
+                '</div></div>';
+        }
+
+        function showEnding() {
+            var ending = '';
+            var endingTitle = '';
+            var endingDesc = '';
+            var endingEmoji = '';
+
+            // 判断结局
+            // 1. 隐藏结局：放弃所有比赛专心出题，且所有题目都被采纳
+            if (!gameState.everParticipated && gameState.problemsCreated > 0 && gameState.problemsCreated === gameState.problemsAdopted) {
+                ending = 'legendary_creator';
+                endingTitle = '🏅 传奇出题人';
+                endingDesc = '你放弃了所有比赛，专心致力于出题。你的题目因为其创新性和难度被所有比赛采纳，成为了YCup历史上最传奇的出题人。你的题目被后世称为"不可能之战"。';
+                endingEmoji = '🏅';
+            }
+            // 2. 退役边缘：声望<50，数学水平<40
+            else if (gameState.reputation < 50 && gameState.math < 40) {
+                ending = 'retiring';
+                endingTitle = '📉 退役边缘';
+                endingDesc = '赛季结束后，你的声望只有' + gameState.reputation + '，数学水平也只有' + gameState.math + '。你开始怀疑人生，考虑是否应该转行...或许，数学竞赛不适合你？';
+                endingEmoji = '📉';
+            }
+            // 3. 数竞之星：声望>300，至少3次第一，出题采纳≥2
+            else if (gameState.reputation > 300 && gameState.firstPlaceCount >= 3 && gameState.problemsAdopted >= 2) {
+                ending = 'math_star';
+                endingTitle = '⭐ 数竞之星';
+                endingDesc = '你的声望达到了' + gameState.reputation + '，获得了' + gameState.firstPlaceCount + '次第一名，并且有' + gameState.problemsAdopted + '道题目被采纳。你被校队特招，成为了众人瞩目的数竞之星！';
+                endingEmoji = '⭐';
+            }
+            // 4. 幕后大佬：出题采纳≥5，声望>200
+            else if (gameState.problemsAdopted >= 5 && gameState.reputation > 200) {
+                ending = 'behind_boss';
+                endingTitle = '🎩 幕后大佬';
+                endingDesc = '你共有' + gameState.problemsAdopted + '道题目被采纳，声望达到了' + gameState.reputation + '。你成为了科学委员会的成员，虽然不再亲自参赛，但你的题目影响着每一场比赛...';
+                endingEmoji = '🎩';
+            }
+            // 5. 普通队员：中等水平，体验了比赛乐趣
+            else {
+                ending = 'normal';
+                endingTitle = '🎮 普通队员';
+                endingDesc = '赛季结束了。你的声望是' + gameState.reputation + '，数学水平是' + gameState.math + '，最佳排名是第' + (gameState.bestRank === 999 ? '无' : gameState.bestRank) + '名。虽然没有特别突出的成绩，但你体验了比赛的乐趣，这就足够了！';
+                endingEmoji = '🎮';
+            }
+
+            var leftPanel = document.getElementById('left-panel');
+            leftPanel.innerHTML = '<div class="competition-interface"><div class="competition-result">' +
+                '<h2>' + endingEmoji + ' 赛季结束 ' + endingEmoji + '</h2>' +
+                '<h3 style="text-align: center; color: #667eea; margin: 20px 0;">' + endingTitle + '</h3>' +
+                '<div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0; line-height: 1.8;">' +
+                '<p><strong>最终统计：</strong></p>' +
+                '<p>声望值：' + gameState.reputation + '</p>' +
+                '<p>数学水平：' + gameState.math + '</p>' +
+                '<p>最佳排名：第 ' + (gameState.bestRank === 999 ? '无' : gameState.bestRank) + ' 名</p>' +
+                '<p>第一名次数：' + gameState.firstPlaceCount + ' 次</p>' +
+                '<p>出题次数：' + gameState.problemsCreated + ' 次</p>' +
+                '<p>出题采纳：' + gameState.problemsAdopted + ' 次</p>' +
+                '<p>是否参赛：' + (gameState.everParticipated ? '是' : '否（专心出题）') + '</p>' +
+                '</div>' +
+                '<div style="background: white; border-radius: 10px; padding: 20px; margin: 20px 0; border-left: 4px solid #667eea;">' +
+                '<p style="line-height: 1.8;">' + endingDesc + '</p>' +
+                '</div>' +
+                '<button class="action-btn" style="margin-top: 20px; width: 100%;" onclick="resetGame()">重新开始游戏</button>' +
+                '</div></div>';
+        }
+
+        function enterPostCompetition() {
+            gameState.isPostCompetition = true;
+            gameState.askCount = 0;
+            gameState.postActionCount = 0;
+
+            var leftPanel = document.getElementById('left-panel');
+            leftPanel.innerHTML = '<div class="panel-title">赛后阶段</div>' +
+                '<div class="stage-name post-competition">赛后阶段</div>' +
+                '<div class="action-buttons">' +
+                '<button class="post-action-btn" onclick="postCompetitionAction(\'review\')" id="btn-review">📝 补题（消耗8精力）</button>' +
+                '<button class="post-action-btn" onclick="postCompetitionAction(\'ask\')" id="btn-ask">❓ 向验题人询问答案（消耗5精力）</button>' +
+                '<button class="post-action-btn" onclick="postCompetitionAction(\'discuss\')">💬 和队友复盘（消耗5精力）</button>' +
+                '<button class="post-action-btn" onclick="postCompetitionAction(\'rest\')">😴 休息（恢复15精力）</button>' +
+                '</div>' +
+                '<div class="next-buff-display" id="post-next-buff" style="display: none;"></div>' +
+                '<div style="margin-top: 20px; text-align: center;">' +
+                '<button class="action-btn" onclick="endPostCompetition()">结束赛后阶段，进入下一周</button>' +
+                '</div>';
+
+            updatePostCompetitionUI();
+        }
+
+        function postCompetitionAction(action) {
+            // 检查赛后行为次数是否已达上限（最多7次）
+            if (gameState.postActionCount >= 7) {
+                alert('赛后行为次数已达上限（最多7次）！请点击"结束赛后阶段"进入下一周。');
+                return;
+            }
+
+            var message = '';
+
+            switch(action) {
+                case 'review':
+                    if (gameState.energy < 8) {
+                        alert('精力不足！需要至少8点精力才能补题。');
+                        return;
+                    }
+
+                    var unsolvedQuestions = [];
+                    for (var i = 0; i < lastCompetitionQuestions.length; i++) {
+                        if (!lastCompetitionQuestions[i].success) {
+                            unsolvedQuestions.push(lastCompetitionQuestions[i]);
+                        }
+                    }
+                    
+                    if (unsolvedQuestions.length === 0) {
+                        alert('所有题目都已经做对了！');
+                        return;
+                    }
+
+                    var randomQuestion = unsolvedQuestions[Math.floor(Math.random() * unsolvedQuestions.length)];
+                    var successProb = calculateSuccessProbabilityNoBuff(randomQuestion.difficulty);
+                    var success = Math.random() < successProb / 100;
+
+                    gameState.energy -= 8;
+
+                    if (success) {
+                        gameState.math = Math.min(100, gameState.math + 3);
+                        message = '补题：第' + randomQuestion.id + '题 难度' + randomQuestion.difficultyName + ' 重新作答，成功！数学水平+3。';
+                        addLog(message, 'success');
+                    } else {
+                        gameState.math = Math.min(100, gameState.math + 1);
+                        message = '补题：第' + randomQuestion.id + '题 难度' + randomQuestion.difficultyName + ' 重新作答，失败。数学水平+1。';
+                        addLog(message, 'failure');
+                    }
+                    gameState.postActionCount++;
+                    break;
+
+                case 'ask':
+                    if (gameState.askCount >= 3) {
+                        alert('验题人不再理你。每周最多询问3次。');
+                        return;
+                    }
+
+                    if (gameState.energy < 5) {
+                        alert('精力不足！需要至少5点精力才能询问答案。');
+                        return;
+                    }
+
+                    gameState.energy -= 5;
+                    gameState.askCount++;
+                    gameState.math = Math.min(100, gameState.math + 2);
+
+                    message = '你向验题人询问答案，消耗5精力，数学水平+2。（剩余询问次数：' + (3 - gameState.askCount) + '）';
+                    addLog(message, 'success');
+                    gameState.postActionCount++;
+                    break;
+
+                case 'discuss':
+                    if (gameState.energy < 5) {
+                        alert('精力不足！需要至少5点精力才能和队友复盘。');
+                        return;
+                    }
+
+                    gameState.energy -= 5;
+                    gameState.teamwork = Math.min(100, gameState.teamwork + 5);
+                    gameState.nextBuff = 0.05;
+
+                    message = '你和队友复盘了比赛，消耗5精力，队伍默契+5，下场比赛成功率+5%。';
+                    addLog(message, 'success');
+                    gameState.postActionCount++;
+                    break;
+
+                case 'rest':
+                    gameState.energy = Math.min(100, gameState.energy + 15);
+                    message = '你选择了休息，精力恢复了15点！';
+                    addLog(message);
+                    gameState.postActionCount++;
+                    break;
+            }
+
+            updatePostCompetitionUI();
+            updateUI();
+        }
+
+        function updatePostCompetitionUI() {
+            var btnReview = document.getElementById('btn-review');
+            var btnAsk = document.getElementById('btn-ask');
+            var btnDiscuss = document.querySelector('.post-action-btn[onclick*="discuss"]');
+            var btnRest = document.querySelector('.post-action-btn[onclick*="rest"]');
+
+            // 次数上限：禁用所有按钮
+            var limitReached = gameState.postActionCount >= 7;
+
+            if (btnReview) {
+                btnReview.disabled = limitReached;
+                btnReview.textContent = limitReached
+                    ? '📝 补题（已达次数上限 ' + gameState.postActionCount + '/7）'
+                    : '📝 补题（消耗8精力，已用' + gameState.postActionCount + '/7次）';
+            }
+            if (btnAsk) {
+                btnAsk.disabled = limitReached || gameState.askCount >= 3;
+                if (limitReached) {
+                    btnAsk.textContent = '❓ 向验题人询问答案（已达次数上限）';
+                } else if (gameState.askCount >= 3) {
+                    btnAsk.textContent = '❓ 向验题人询问答案（已达询问上限）';
+                } else {
+                    btnAsk.textContent = '❓ 向验题人询问答案（消耗5精力，剩余' + (3 - gameState.askCount) + '次）';
+                }
+            }
+            if (btnDiscuss) {
+                btnDiscuss.disabled = limitReached;
+                btnDiscuss.textContent = limitReached
+                    ? '💬 和队友复盘（已达次数上限 ' + gameState.postActionCount + '/7）'
+                    : '💬 和队友复盘（消耗5精力，已用' + gameState.postActionCount + '/7次）';
+            }
+            if (btnRest) {
+                btnRest.disabled = limitReached;
+                btnRest.textContent = limitReached
+                    ? '😴 休息（已达次数上限 ' + gameState.postActionCount + '/7）'
+                    : '😴 休息（恢复15精力，已用' + gameState.postActionCount + '/7次）';
+            }
+
+            var nextBuffDiv = document.getElementById('post-next-buff');
+            if (nextBuffDiv) {
+                if (gameState.nextBuff > 0) {
+                    nextBuffDiv.textContent = '下场比赛加成：成功率 +' + (gameState.nextBuff * 100) + '%';
+                    nextBuffDiv.style.display = 'block';
+                } else {
+                    nextBuffDiv.style.display = 'none';
+                }
+            }
+        }
+
+        function endPostCompetition() {
+            gameState.isPostCompetition = false;
+            gameState.week++;
+
+            // 检查是否赛季结束（15周）
+            if (gameState.week > 15) {
+                addLog('赛季结束！正在生成结局...', 'success');
+                showEnding();
+                return;
+            }
+
+            gameState.energy = Math.min(100, gameState.energy + 20);
+            addLog('赛后阶段结束，进入第' + gameState.week + '周。精力恢复20点。', 'success');
+            restoreLeftPanel();
+        }
+
+        function restoreLeftPanel() {
+            var leftPanel = document.getElementById('left-panel');
+            leftPanel.innerHTML = '<div class="panel-title">行动面板</div>' +
+                '<div class="stage-name" id="stage-name">赛前阶段</div>' +
+                '<div class="action-buttons">' +
+                '<button class="action-btn" onclick="performAction(\'normal\')">🎯 正常参赛</button>' +
+                '<button class="action-btn" onclick="performAction(\'cram\')">📚 临时抱佛脚</button>' +
+                '<button class="action-btn" onclick="performAction(\'discuss\')">💬 和队友讨论策略</button>' +
+                '<button class="action-btn" onclick="performAction(\'create\')">✏️ 放弃参赛去出题</button>' +
+                '<button class="action-btn" onclick="performAction(\'rest\')">😴 休息</button>' +
+                '</div>' +
+                '<div class="buff-display" id="buff-display"></div>' +
+                '<div class="next-buff-display" id="next-buff-display"></div>' +
+                '<div class="preview-section">' +
+                '<div class="preview-title">📊 下周比赛预告</div>' +
+                '<div class="preview-info">' +
+                '<div class="preview-item"><span>题目总数</span><strong id="preview-total">-</strong></div>' +
+                '<div class="preview-item"><span class="difficulty-label difficulty-easy">Easy</span><strong id="preview-easy">-</strong></div>' +
+                '<div class="preview-item"><span class="difficulty-label difficulty-medium">Medium</span><strong id="preview-medium">-</strong></div>' +
+                '<div class="preview-item"><span class="difficulty-label difficulty-hard">Hard</span><strong id="preview-hard">-</strong></div>' +
+                '<div class="preview-item"><span class="difficulty-label difficulty-extreme">Extreme</span><strong id="preview-extreme">-</strong></div>' +
+                '</div></div>';
+            
+            updateUI();
+        }
+
+        function showCreateProblemInterface() {
+            var leftPanel = document.getElementById('left-panel');
+            leftPanel.innerHTML = '<div class="create-problem-interface">' +
+                '<div class="stage-name">出题阶段</div>' +
+                '<div class="create-form">' +
+                '<div class="form-group">' +
+                '<label class="form-label" for="problem-difficulty">题目难度</label>' +
+                '<select class="form-select" id="problem-difficulty">' +
+                '<option value="Easy">Easy（简单）</option>' +
+                '<option value="Medium" selected>Medium（中等）</option>' +
+                '<option value="Hard">Hard（困难）</option>' +
+                '<option value="Extreme">Extreme（极难）</option>' +
+                '</select>' +
+                '</div>' +
+                '<div class="form-group">' +
+                '<label class="form-label" for="problem-keywords">题目关键词</label>' +
+                '<input type="text" class="form-input" id="problem-keywords" placeholder="随便输入一些关键词...">' +
+                '<div class="form-hint">关键词将影响题目评分（仅作展示用）</div>' +
+                '</div>' +
+                '<button class="btn-submit-problem" onclick="submitProblem()">📝 提交出题</button>' +
+                '</div>' +
+                '<div id="problem-result"></div>' +
+                '</div>';
+        }
+
+        function submitProblem() {
+            var difficulty = document.getElementById('problem-difficulty').value;
+            var keywords = document.getElementById('problem-keywords').value;
+
+            // 随机评分1-10
+            var baseScore = Math.floor(Math.random() * 10) + 1;
+
+            // 根据难度微调：Extreme+1，Easy-1
+            var score = baseScore;
+            if (difficulty === 'Extreme') {
+                score = Math.min(10, score + 1);
+            } else if (difficulty === 'Easy') {
+                score = Math.max(1, score - 1);
+            }
+
+            // 根据评分给予奖励或惩罚
+            var reputationChange = 0;
+            var mathChange = 0;
+            var energyChange = 0;
+            var message = '';
+            var resultHTML = '';
+
+            // 跟踪出题次数（用于隐藏结局判断）
+            gameState.problemsCreated++;
+
+            if (score >= 8) {
+                // 评分≥8：声望+30，数学+5，精力+20，出题采纳计数+1
+                reputationChange = 30;
+                mathChange = 5;
+                energyChange = 20;
+                gameState.problemsAdopted++;
+                message = '题目质量优秀！出题被采纳！';
+                resultHTML = '<div class="problem-result">' +
+                    '<h3>📝 出题结果</h3>' +
+                    '<div class="result-score-display">' + score + ' 分</div>' +
+                    '<p style="text-align: center; color: #666;">' + message + '</p>' +
+                    '<div class="result-rewards">' +
+                    '<h4>🎁 奖励</h4>' +
+                    '<p>声望值：+30</p>' +
+                    '<p>数学水平：+5</p>' +
+                    '<p>精力：+20</p>' +
+                    '<p>出题采纳计数：+1（当前总计：' + gameState.problemsAdopted + '）</p>' +
+                    '</div></div>';
+            } else if (score >= 6) {
+                // 评分6-7：声望+10，数学+2
+                reputationChange = 10;
+                mathChange = 2;
+                message = '题目质量一般，有待提高。';
+                resultHTML = '<div class="problem-result">' +
+                    '<h3>📝 出题结果</h3>' +
+                    '<div class="result-score-display">' + score + ' 分</div>' +
+                    '<p style="text-align: center; color: #666;">' + message + '</p>' +
+                    '<div class="result-rewards">' +
+                    '<h4>🎁 奖励</h4>' +
+                    '<p>声望值：+10</p>' +
+                    '<p>数学水平：+2</p>' +
+                    '</div></div>';
+            } else {
+                // 评分≤5：声望-5，下场比赛成功率-5%（debuff）
+                reputationChange = -5;
+                gameState.createDebuff += 0.05; // 下场比赛成功率-5%
+                message = '题目质量较差，需要多加练习。下场比赛成功率-5%。';
+                resultHTML = '<div class="problem-result">' +
+                    '<h3>📝 出题结果</h3>' +
+                    '<div class="result-score-display" style="color: #f44336;">' + score + ' 分</div>' +
+                    '<p style="text-align: center; color: #666;">' + message + '</p>' +
+                    '<div class="result-penalty">' +
+                    '<h4>⚠️ 惩罚</h4>' +
+                    '<p>声望值：-5</p>' +
+                    '<p>下场比赛成功率：-5%</p>' +
+                    '</div></div>';
+            }
+
+            // 应用变化
+            gameState.reputation += reputationChange;
+            gameState.math = Math.min(100, gameState.math + mathChange);
+            gameState.energy = Math.min(100, gameState.energy + energyChange);
+
+            // 显示结果
+            document.getElementById('problem-result').innerHTML = resultHTML;
+
+            // 添加日志
+            addLog('出题完成！评分：' + score + '分。' + message + ' 声望' + (reputationChange >= 0 ? '+' : '') + reputationChange + '。', score >= 6 ? 'success' : 'failure');
+
+            // 更新UI
+            updateUI();
+
+            // 显示进入赛后阶段按钮
+            var leftPanel = document.getElementById('left-panel');
+            var createInterface = leftPanel.querySelector('.create-problem-interface');
+            if (createInterface) {
+                createInterface.innerHTML += '<button class="btn-end-week" onclick="enterPostCreate()">进入赛后阶段</button>';
+            }
+        }
+
+        function enterPostCreate() {
+            gameState.isPostCreate = true;
+            gameState.postActionCount = 0;
+
+            var leftPanel = document.getElementById('left-panel');
+            leftPanel.innerHTML = '<div class="post-create-interface">' +
+                '<div class="panel-title">赛后阶段（出题后）</div>' +
+                '<div class="stage-name post-competition">赛后阶段</div>' +
+                '<div style="margin-bottom: 15px; color: #666; font-size: 14px;">出题后本周无比赛，可以进行以下活动：</div>' +
+                '<div class="action-buttons">' +
+                '<button class="post-action-btn" onclick="postCreateAction(\'review\')" id="btn-create-review">📝 补题（消耗8精力）</button>' +
+                '<button class="post-action-btn" onclick="postCreateAction(\'discuss\')" id="btn-create-discuss">💬 和队友复盘（消耗5精力）</button>' +
+                '<button class="post-action-btn" onclick="postCreateAction(\'rest\')" id="btn-create-rest">😴 休息（恢复15精力）</button>' +
+                '</div>' +
+                '<div style="margin-top: 20px; text-align: center;">' +
+                '<button class="action-btn" onclick="endPostCreate()">结束本周，进入下一周</button>' +
+                '</div>';
+
+            updatePostCreateUI();
+        }
+
+        function postCreateAction(action) {
+            if (gameState.postActionCount >= 7) {
+                alert('赛后行为次数已达上限（最多7次）！请点击"结束本周"进入下一周。');
+                return;
+            }
+
+            var message = '';
+
+            switch(action) {
+                case 'review':
+                    if (gameState.energy < 8) {
+                        alert('精力不足！需要至少8点精力才能补题。');
+                        return;
+                    }
+
+                    gameState.energy -= 8;
+                    var success = Math.random() < 0.5;
+                    if (success) {
+                        gameState.math = Math.min(100, gameState.math + 3);
+                        message = '补题成功！数学水平+3。';
+                        addLog(message, 'success');
+                    } else {
+                        gameState.math = Math.min(100, gameState.math + 1);
+                        message = '补题失败。数学水平+1。';
+                        addLog(message, 'failure');
+                    }
+                    gameState.postActionCount++;
+                    break;
+
+                case 'discuss':
+                    if (gameState.energy < 5) {
+                        alert('精力不足！需要至少5点精力才能和队友复盘。');
+                        return;
+                    }
+
+                    gameState.energy -= 5;
+                    gameState.teamwork = Math.min(100, gameState.teamwork + 5);
+                    gameState.nextBuff = 0.05;
+                    message = '你和队友复盘了出题过程，消耗5精力，队伍默契+5，下场比赛成功率+5%。';
+                    addLog(message, 'success');
+                    gameState.postActionCount++;
+                    break;
+
+                case 'rest':
+                    gameState.energy = Math.min(100, gameState.energy + 15);
+                    message = '你选择了休息，精力恢复了15点！';
+                    addLog(message);
+                    gameState.postActionCount++;
+                    break;
+            }
+
+            updatePostCreateUI();
+            updateUI();
+        }
+
+        function updatePostCreateUI() {
+            var btnReview = document.getElementById('btn-create-review');
+            var btnDiscuss = document.getElementById('btn-create-discuss');
+            var btnRest = document.getElementById('btn-create-rest');
+
+            var limitReached = gameState.postActionCount >= 7;
+
+            if (btnReview) {
+                btnReview.disabled = limitReached;
+                btnReview.textContent = limitReached
+                    ? '📝 补题（已达次数上限 ' + gameState.postActionCount + '/7）'
+                    : '📝 补题（消耗8精力，已用' + gameState.postActionCount + '/7次）';
+            }
+            if (btnDiscuss) {
+                btnDiscuss.disabled = limitReached;
+                btnDiscuss.textContent = limitReached
+                    ? '💬 和队友复盘（已达次数上限 ' + gameState.postActionCount + '/7）'
+                    : '💬 和队友复盘（消耗5精力，已用' + gameState.postActionCount + '/7次）';
+            }
+            if (btnRest) {
+                btnRest.disabled = limitReached;
+                btnRest.textContent = limitReached
+                    ? '😴 休息（已达次数上限 ' + gameState.postActionCount + '/7）'
+                    : '😴 休息（恢复15精力，已用' + gameState.postActionCount + '/7次）';
+            }
+        }
+
+        function endPostCreate() {
+            gameState.isPostCreate = false;
+            gameState.week++;
+
+            // 检查是否赛季结束（15周）
+            if (gameState.week > 15) {
+                addLog('赛季结束！正在生成结局...', 'success');
+                showEnding();
+                return;
+            }
+
+            gameState.energy = Math.min(100, gameState.energy + 20);
+            addLog('出题后赛后阶段结束，进入第' + gameState.week + '周。精力恢复20点。', 'success');
+            restoreLeftPanel();
+        }
+
+        function toggleMute() {
+            gameState.isMuted = !gameState.isMuted;
+            var muteBtn = document.getElementById('mute-btn');
+            if (gameState.isMuted) {
+                muteBtn.textContent = '🔇 取消静音';
+                muteBtn.classList.add('active');
+            } else {
+                muteBtn.textContent = '🔊 静音';
+                muteBtn.classList.remove('active');
+            }
+            addLog(gameState.isMuted ? '游戏已静音' : '游戏已取消静音');
+        }
+
+        function resetGame() {
+            if (!confirm('确定要重置游戏吗？所有进度将丢失！')) {
+                return;
+            }
+            
+            gameState = {
+                week: 1,
+                energy: 100,
+                math: 65,
+                teamwork: 50,
+                reputation: 10,
+                isMuted: false,
+                mathBuff: 0,
+                extraSubmits: 0,
+                skipCompetition: false,
+                postActionCount: 0,
+                inventory: [],
+                isPostCompetition: false,
+                isPostCreate: false,
+                askCount: 0,
+                nextBuff: 0,
+                problemsAdopted: 0,
+                problemsCreated: 0,
+                createDebuff: 0,
+                bestRank: 999,
+                firstPlaceCount: 0,
+                everParticipated: false,
+                eventsEnabled: true,
+                triggeredEvents: [],
+                competitionModifier: {
+                    extraPenalty: 0,
+                    correctRateMod: 0,
+                    autoCorrectNext: false,
+                    mathTempReduction: 0,
+                    opponentCorrectRateMod: {},
+                    difficultyUpgrade: false
+                },
+                title: ''
+            };
+            
+            currentCompetition = null;
+            lastCompetitionQuestions = [];
+            
+            var logList = document.getElementById('event-log');
+            logList.innerHTML = '<li class="event-item"><div class="event-time">第 1 周 - 开始</div><div class="event-content">游戏已重置！欢迎回到 YCup 数学竞赛模拟器！</div></li>' +
+                '<li class="event-item"><div class="event-time">第 1 周 - 提示</div><div class="event-content">合理分配精力和时间，提升你的数学水平吧！</div></li>' +
+                '<li class="event-item"><div class="event-time">第 1 周 - 提示</div><div class="event-content">点击左侧按钮开始你的第一次行动！</div></li>';
+            
+            var muteBtn = document.getElementById('mute-btn');
+            muteBtn.textContent = '🔊 静音';
+            muteBtn.classList.remove('active');
+            
+            var eventToggle = document.getElementById('event-toggle');
+            if (eventToggle) eventToggle.checked = true;
+            
+            restoreLeftPanel();
+            updateUI();
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
