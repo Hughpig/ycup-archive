@@ -56,6 +56,16 @@ export default defineConfig({
     }
   },
 
+  vite: {
+    assetsInclude: ['**/*.html'],
+    server: {
+      fs: {
+        // 允许访问项目根目录以外的文件（可选，增加兼容性）
+        allow: ['..']
+      }
+    }
+  },
+
   themeConfig: {
     // 顶部导航
     nav: [
@@ -65,7 +75,7 @@ export default defineConfig({
       { text: '赛程', link: '/schedule' },
       { text: '关于', link: '/about' },
       { text: '排行榜', link: '/rankings' },
-      { text: '小游戏', link: '/game' }
+      { text: '小游戏', link: '/game/index.html', target: '_self', rel: 'external' }
     ],
 
     // 侧边栏：支持多级折叠
