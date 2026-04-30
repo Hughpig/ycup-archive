@@ -120,6 +120,15 @@ export default defineConfig({
                 { text: '官方题解', link: '/problems/2026/w04/solution' },
                 { text: '赛后战报', link: '/problems/2026/w04/report' }
               ]
+            },
+            {
+              text: 'Stage 5 考后总结 4.28',
+              collapsed: true,
+              items: [
+                { text: '题目预览', link: '/problems/2026/w05/' },
+                { text: '官方题解', link: '/problems/2026/w05/solution' },
+                { text: '赛后战报', link: '/problems/2026/w05/report' }
+              ]
             }
           ]
         }
