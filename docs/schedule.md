@@ -8,4 +8,6 @@
 
 <Schedule title="Stage 4 红楼杯" start="2026-04-14 11:50" :duration="40" />
 
-<Schedule title="Stage 5 考后总结" start="2026-04-28 11:50" :duration="40" />
+<Schedule title="Stage 5 考后总结" start="2026-04-28 11:55" :duration="40" />
+
+<Schedule title="Stage 6 刘慈欣" start="2026-05-12 11:50" :duration="40" />
