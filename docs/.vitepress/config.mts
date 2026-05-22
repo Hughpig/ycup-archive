@@ -140,7 +140,7 @@ export default defineConfig({
               ]
             },
             {
-              text: 'Stage 6 刘慈欣 5.19',
+              text: 'Stage 7 单身 5.19',
               collapsed: true,
               items: [
                 { text: '题目预览', link: '/problems/2026/w07/' },
