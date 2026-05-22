@@ -11,3 +11,7 @@
 <Schedule title="Stage 5 考后总结" start="2026-04-28 11:50" :duration="40" />
 
 <Schedule title="Stage 6 刘慈欣" start="2026-05-13 11:50" :duration="40" />
+
+<Schedule title="Stage 7 单身" start="2026-05-19 11:50" :duration="40" />
+
+<Schedule title="Stage 8 仁济医院" start="2026-05-27 11:50" :duration="40" />

@@ -138,6 +138,15 @@ export default defineConfig({
                 { text: '官方题解', link: '/problems/2026/w06/solution' },
                 { text: '赛后战报', link: '/problems/2026/w06/report' }
               ]
+            },
+            {
+              text: 'Stage 6 刘慈欣 5.19',
+              collapsed: true,
+              items: [
+                { text: '题目预览', link: '/problems/2026/w07/' },
+                { text: '官方题解', link: '/problems/2026/w07/solution' },
+                { text: '赛后战报', link: '/problems/2026/w07/report' }
+              ]
             }
           ]
         }
