@@ -147,6 +147,15 @@ export default defineConfig({
                 { text: '官方题解', link: '/problems/2026/w07/solution' },
                 { text: '赛后战报', link: '/problems/2026/w07/report' }
               ]
+            },
+            {
+              text: 'Stage 8 仁济医院 5.27',
+              collapsed: true,
+              items: [
+                { text: '题目预览', link: '/problems/2026/w08/' },
+                { text: '官方题解', link: '/problems/2026/w08/solution' },
+                { text: '赛后战报', link: '/problems/2026/w08/report' }
+              ]
             }
           ]
         }
