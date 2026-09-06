@@ -3,22 +3,35 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run test:score",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview"
+    "docs:preview": "vitepress preview",
+    "cf:dev": "wrangler pages dev .vitepress/dist --binding ADMIN_WRITE_TOKEN=local-dev-token",
+    "cf:types": "wrangler types",
+    "typecheck:server": "tsc -p tsconfig.server.json",
+    "time:update": "tsx script/update-time.ts",
+    "scheduler:dev": "wrangler dev --config scheduler/wrangler.jsonc --test-scheduled",
+    "scheduler:deploy": "wrangler deploy --config scheduler/wrangler.jsonc",
+    "test:score": "node --test tests/*.test.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@11.25.0",
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260702.1",
     "@types/crypto-js": "^4.2.2",
+    "@types/node": "^22.20.1",
     "markdown-it-katex": "^2.0.3",
     "markdown-it-mathjax3": "^5.2.0",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
     "vitepress": "^1.6.4",
-    "vue": "^3.5.42"
+    "vue": "^3.5.42",
+    "wrangler": "^4.128.0"
   },
   "dependencies": {
     "crypto-js": "^4.2.0"

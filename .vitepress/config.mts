@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 import mathjax3 from 'markdown-it-mathjax3'
 
 export default defineConfig({
-  base: process.env.GITHUB_ACTIONS ? '/ycup-archive/' : '/',
+  base: '/',
   title: "ycup Archive",
   description: "ycup 数学竞赛数字化存档站",
   
@@ -74,7 +74,7 @@ export default defineConfig({
       { text: '2026 赛季', link: '/problems/2026/w01/' },
       { text: '赛程', link: '/schedule' },
       { text: '关于', link: '/about' },
-      { text: '排行榜', link: '/rankings' },
+      { text: '实时榜', link: '/rank/' },
       { text: '小游戏', link: '/game/index.html', target: '_self', rel: 'external' }
     ],
 

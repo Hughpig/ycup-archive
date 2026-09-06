@@ -1,0 +1,18 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "ycup-scheduler",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-03",
+  "triggers": {
+    "crons": [
+      "* * * * *"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ycup",
+      "database_id": "ef7319bd-88e1-4ff8-802a-375528d8df80"
+    }
+  ]
+}

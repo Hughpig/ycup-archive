@@ -6,6 +6,7 @@ import type { EnhanceAppContext } from 'vitepress'
 import PdfBox from './components/PdfBox.vue'
 import Solve from './components/Solve.vue'
 import Schedule from './components/Schedule.vue'
+import LiveScoreboard from './components/LiveScoreboard.vue'
 
 export default {
   extends: DefaultTheme,
@@ -13,6 +14,7 @@ export default {
     app.component('PdfBox', PdfBox)
     app.component('Solve', Solve)
     app.component('Schedule', Schedule)
+    app.component('LiveScoreboard', LiveScoreboard)
   },
   setup() {
     const route = useRoute()
