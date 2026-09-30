@@ -71,7 +71,7 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       { text: '指南', link: '/guide' },
-      { text: '2026 赛季', link: '/problems/2026/w01/' },
+      { text: '2026 赛季', link: '/problems/2026/s02/w01/' },
       { text: '赛程', link: '/schedule' },
       { text: '关于', link: '/about' },
       { text: '排行榜', link: '/rankings' },
@@ -155,6 +155,30 @@ export default defineConfig({
                 { text: '题目预览', link: '/problems/2026/w08/' },
                 { text: '官方题解', link: '/problems/2026/w08/solution' },
                 { text: '赛后战报', link: '/problems/2026/w08/report' }
+              ]
+            }
+          ]
+        },
+        {
+          text: '📅 2026 第二赛季 (Season 2)',
+          collapsed: false,
+          items: [
+            {
+              text: 'Stage 1 新旧 9.2',
+              collapsed: true,
+              items: [
+                { text: '题目预览', link: '/problems/2026/s02/w01/' },
+                { text: '官方题解', link: '/problems/2026/s02/w01/solution' },
+                { text: '赛后战报', link: '/problems/2026/s02/w01/report' }
+              ]
+            },
+            {
+              text: 'Stage 2 蜗牛 9.9',
+              collapsed: true,
+              items: [
+                { text: '题目预览', link: '/problems/2026/s02/w02/' },
+                { text: '官方题解', link: '/problems/2026/s02/w02/solution' },
+                { text: '赛后战报', link: '/problems/2026/s02/w02/report' }
               ]
             }
           ]

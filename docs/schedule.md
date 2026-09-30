@@ -15,3 +15,9 @@
 <Schedule title="Stage 7 单身" start="2026-05-19 11:50" :duration="40" />
 
 <Schedule title="Stage 8 仁济医院" start="2026-05-27 11:50" :duration="40" />
+
+## YCup Season 2
+
+<Schedule title="Season 2 Stage 1: 新旧" start="2026-09-02 11:55" end="2026-09-02 12:35" />
+
+<Schedule title="Season 2 Stage 2: 蜗牛" start="2026-09-09 11:55" end="2026-09-09 12:35" />
